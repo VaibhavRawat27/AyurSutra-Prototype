@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AyurSutra - Your Wellness Platform</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Self-Contained CSS -->
+    <style>
+        /* --- Base & Variables --- */
+        :root {
+            --primary-color: #8B4513; /* SaddleBrown */
+            --primary-dark: #6B240C;
+            --secondary-color: #556B2F; /* DarkOliveGreen */
+            --accent-color: #DAA520; /* GoldenRod */
+            --bg-light: #F5F5DC; /* Beige */
+            --card-bg: #ffffff;
+            --text-dark: #3a3a3a;
+            --text-light: #6b6b6b;
+            --border-color: #e5e7eb;
+        }
+
+        body.dark {
+            --primary-color: #a1623a;
+            --primary-dark: #bd7a50;
+            --secondary-color: #8fbc8f;
+            --accent-color: #f0e68c;
+            --bg-light: #121212;
+            --card-bg: #1e1e1e;
+            --text-dark: #e0e0e0;
+            --text-light: #a0a0a0;
+            --border-color: #333333;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            margin: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        .container {
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 1rem 2rem;
+        }
+        .view { display: none; }
+        .active-view { display: block; }
+        a { color: var(--secondary-color); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* --- Components --- */
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease-in-out;
+        }
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary:hover { background-color: var(--primary-dark); }
+        .btn-secondary { background-color: var(--secondary-color); color: white; }
+        .btn-secondary:hover { opacity: 0.9; }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s;
+        }
+        body.dark .card {
+             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+        }
+        .card:hover:not(.non-interactive) {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            transform: translateY(-0.25rem);
+        }
+        body.dark .card:hover:not(.non-interactive) {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+        }
+
+
+        .input-field {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s;
+            background-color: var(--card-bg);
+            color: var(--text-dark);
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: transparent;
+            box-shadow: 0 0 0 2px var(--secondary-color);
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border-left-color: var(--secondary-color);
+            animation: spin 1s ease infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* --- Theme Toggle --- */
+        .theme-switch-wrapper { display: flex; align-items: center; gap: 0.5rem;}
+        .theme-switch { display: inline-block; height: 22px; position: relative; width: 42px; }
+        .theme-switch input { display:none; }
+        .slider { background-color: #ccc; bottom: 0; cursor: pointer; left: 0; position: absolute; right: 0; top: 0; transition: .4s; }
+        .slider:before { background-color: #fff; bottom: 3px; content: ""; height: 16px; left: 3px; position: absolute; transition: .4s; width: 16px; }
+        input:checked + .slider { background-color: var(--secondary-color); }
+        input:checked + .slider:before { transform: translateX(20px); }
+        .slider.round { border-radius: 34px; }
+        .slider.round:before { border-radius: 50%; }
+
+        /* --- Header / Navigation --- */
+        .header {
+            background-color: var(--card-bg);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            transition: background-color 0.3s;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { display: flex; align-items: center; gap: 0.5rem; cursor: pointer;}
+        .logo-icon { font-size: 2rem; color: var(--secondary-color); }
+        .logo-text { font-size: 1.75rem; font-weight: 700; color: var(--primary-color); }
+        .nav-links { display: none; }
+        .nav-links a { font-size: 1.125rem; }
+        .auth-links, .user-menu { display: flex; align-items: center; gap: 1rem; }
+        .user-menu-button { width: 2.5rem; height: 2.5rem; background-color: var(--bg-light); color: var(--text-dark); border-radius: 9999px; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: background-color 0.3s; }
+        .user-menu-button i { font-size: 1.5rem; }
+        .user-dropdown { display: none; position: absolute; right: 0; margin-top: 0.5rem; width: 12rem; background-color: var(--card-bg); border-radius: 0.375rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 20; border: 1px solid var(--border-color); }
+        .user-dropdown a { display: block; padding: 0.5rem 1rem; font-size: 0.875rem; color: var(--text-dark); }
+        .user-dropdown a:hover { background-color: var(--bg-light); }
+        
+        /* --- Notification System --- */
+        .notification-bell { position: relative; cursor: pointer; }
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 10px;
+            height: 10px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            border: 2px solid var(--card-bg);
+            display: none; /* Hidden by default */
+        }
+        .notification-panel {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 1rem);
+            width: 22rem;
+            max-height: 400px;
+            overflow-y: auto;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            z-index: 60;
+        }
+        .notification-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .notification-item:last-child { border-bottom: none; }
+        .notification-item i { font-size: 1.5rem; color: var(--secondary-color); }
+        .notification-item p { margin: 0; line-height: 1.4; }
+        .notification-item .time { font-size: 0.75rem; color: var(--text-light); }
+
+        /* --- Layouts & Grids --- */
+        .dashboard-grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(1, 1fr); }
+        .doctor-list-grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(1, 1fr); }
+        .form-grid { display: grid; gap: 1rem; }
+        .profile-grid { display: grid; gap: 1.5rem; grid-template-columns: 1fr; }
+        .role-selection-grid { display: grid; gap: 1.5rem; grid-template-columns: 1fr; }
+        .instructions-grid { display: grid; gap: 1.5rem; grid-template-columns: 1fr; }
+        .schedule-layout { display: grid; gap: 2rem; grid-template-columns: 1fr; }
+        .calendar-grid { display: grid; grid-template-columns: 60px repeat(7, 1fr); }
+        .article-grid { display: grid; gap: 1.5rem; grid-template-columns: 1fr; }
+
+        
+        /* --- Specific Section Styles --- */
+        .page-title { font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--primary-color); }
+        .page-subtitle { font-size: 1.125rem; color: var(--text-light); margin-top: -1rem; margin-bottom: 1.5rem; }
+        
+        .ai-chat-history { height: 20rem; overflow-y: auto; background-color: var(--bg-light); border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--border-color); }
+        
+        /* --- APPOINTMENT CARD --- */
+        .appointment-grid { display: grid; gap: 1.5rem; grid-template-columns: 1fr; }
+        .appointment-card { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1.5rem; border: 1px solid var(--border-color); padding: 1rem; border-radius: 0.5rem; background-color: var(--card-bg); }
+        .appointment-card-time { text-align: center; }
+        .appointment-card-time .day { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); line-height: 1; }
+        .appointment-card-time .label { font-size: 0.875rem; color: var(--text-light); }
+        .appointment-card-details h4 { font-size: 1.125rem; font-weight: 600; margin: 0 0 0.25rem 0; }
+        .appointment-card-details p { margin: 0; color: var(--text-light); display: flex; align-items: center; gap: 0.5rem; }
+        .appointment-card-actions { display: flex; flex-direction: column; gap: 0.5rem; }
+
+        .detail-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
+        .detail-info-card { display: flex; align-items: center; gap: 1rem; }
+        .detail-info-card img { width: 5rem; height: 5rem; border-radius: 50%; border: 3px solid var(--secondary-color); }
+
+        /* --- DOSHA QUIZ --- */
+        .quiz-progress-bar-container { width: 100%; background-color: var(--border-color); border-radius: 999px; height: 10px; margin-bottom: 2rem; }
+        .quiz-progress-bar { height: 100%; width: 0%; background-color: var(--secondary-color); border-radius: 999px; transition: width 0.4s ease; }
+        .quiz-card { overflow: hidden; }
+        .quiz-question-container { transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out; }
+        .question-exit { opacity: 0; transform: translateX(-20px); }
+        .question-enter { opacity: 1; transform: translateX(0); }
+        .quiz-option { display: block; width: 100%; text-align: left; padding: 1rem; margin-bottom: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; }
+        .quiz-option:hover { background-color: var(--bg-light); border-color: var(--secondary-color); }
+        .dosha-result-card { border: 2px solid var(--secondary-color); background-color: #f0fdf4; }
+        body.dark .dosha-result-card { background-color: #1a2e1a; }
+        .dosha-result-card h3 { font-size: 2rem; color: var(--secondary-color); }
+
+        /* --- INSTRUCTIONS --- */
+        .instruction-card { display: flex; flex-direction: column; }
+        .instruction-card-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+        .instruction-card-header i { font-size: 2.5rem; color: var(--secondary-color); }
+        .instruction-card-header h3 { font-size: 1.5rem; font-weight: 600; color: var(--primary-color); margin: 0; }
+        
+        /* --- SCHEDULE CALENDAR --- */
+        .calendar-header { text-align: center; font-weight: 600; padding: 0.5rem 0; }
+        .time-label { font-size: 0.75rem; text-align: right; padding-right: 0.5rem; color: var(--text-light); }
+        .day-column { border-left: 1px solid var(--border-color); }
+        .time-slot { height: 50px; border-top: 1px solid var(--border-color); position: relative; }
+        .calendar-appointment { position: absolute; background-color: var(--secondary-color); color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; width: calc(100% - 4px); left: 2px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; cursor: pointer;}
+
+        /* --- Responsive Design --- */
+        @media (min-width: 768px) { /* md */
+            .nav-links { display: flex; align-items: center; gap: 1.5rem; }
+            .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+            .doctor-list-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-grid { grid-template-columns: repeat(4, 1fr); }
+            .profile-grid { grid-template-columns: 200px 1fr; }
+            .role-selection-grid { grid-template-columns: repeat(3, 1fr); }
+            .detail-grid { grid-template-columns: 2fr 1fr; }
+            .appointment-grid { grid-template-columns: repeat(2, 1fr); }
+            .instructions-grid { grid-template-columns: repeat(2, 1fr); }
+            .schedule-layout { grid-template-columns: 3fr 1fr; }
+            .article-grid { grid-template-columns: repeat(2, 1fr); }
+            .home-hero h1 { font-size: 3rem; }
+        }
+        @media (min-width: 1024px) { /* lg */
+            .dashboard-grid { grid-template-columns: repeat(4, 1fr); }
+            .doctor-list-grid { grid-template-columns: repeat(3, 1fr); }
+            .article-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- =========== HEADER / NAVBAR =========== -->
+    <header class="header">
+        <nav class="container navbar">
+            <div class="logo" onclick="goHome()">
+                <i class="ph-bold ph-leaf logo-icon"></i>
+                <span class="logo-text">AyurSutra</span>
+            </div>
+            <div id="main-nav-links" class="nav-links">
+                <a href="#" onclick="showView('find-doctor-view')">Find a Doctor</a>
+                <a href="#" onclick="showView('dosha-quiz-view')">Know Your Dosha</a>
+                <a href="#" onclick="showView('educational-feed-view')">Learn</a>
+            </div>
+            <div id="auth-links" class="auth-links">
+                <div class="theme-switch-wrapper">
+                    <i class="ph ph-sun"></i>
+                    <label class="theme-switch">
+                        <input type="checkbox" id="theme-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                    <i class="ph ph-moon"></i>
+                </div>
+                <button class="btn btn-secondary" onclick="showView('auth-view')">Login</button>
+            </div>
+            <div id="user-menu" class="user-menu" style="display: none;">
+                <div class="theme-switch-wrapper">
+                    <i class="ph ph-sun"></i>
+                    <label class="theme-switch">
+                        <input type="checkbox" id="theme-toggle-user">
+                        <span class="slider round"></span>
+                    </label>
+                    <i class="ph ph-moon"></i>
+                </div>
+                <div class="notification-bell" onclick="toggleNotificationPanel()">
+                    <i class="ph ph-bell" style="font-size: 1.5rem;"></i>
+                    <span id="notification-badge" class="notification-badge"></span>
+                </div>
+                <span id="welcome-message" style="font-weight: 600;"></span>
+                <div style="position: relative;">
+                    <button onclick="toggleDropdown()" class="user-menu-button">
+                        <i class="ph ph-user"></i>
+                    </button>
+                    <div id="user-dropdown" class="user-dropdown">
+                        <a href="#" onclick="showDashboard()">My Dashboard</a>
+                        <a href="#" onclick="showView('profile-view')">My Profile</a>
+                        <a href="#" onclick="logout()">Logout</a>
+                    </div>
+                </div>
+                <!-- Notification Panel -->
+                <div id="notification-panel" class="notification-panel">
+                    <!-- Notifications will be rendered here by JS -->
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+
+        <!-- =========== HOME VIEW (ROLE SELECTION) =========== -->
+        <section id="home-view" class="view active-view">
+            <div class="home-hero">
+                <h1 >Welcome to AyurSutra</h1>
+                <p>Your personalized path to holistic wellness. Please select your role to begin.</p>
+            </div>
+            <div class="role-selection-grid">
+                <div class="card role-card" onclick="showLoginForRole('customer')">
+                    <i class="ph-bold ph-user-circle"></i>
+                    <h3>For Patients</h3>
+                    <p class="text-light">Book appointments, track your wellness, and connect with doctors.</p>
+                </div>
+                <div class="card role-card" onclick="showLoginForRole('doctor')">
+                    <i class="ph-bold ph-first-aid-kit"></i>
+                    <h3>For Doctors</h3>
+                    <p class="text-light">Manage your patients, schedule, and earnings.</p>
+                </div>
+                <div class="card role-card" onclick="showLoginForRole('admin')">
+                    <i class="ph-bold ph-gear-six"></i>
+                    <h3>Admin Portal</h3>
+                    <p class="text-light">Oversee platform operations and management.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========== AUTHENTICATION VIEW =========== -->
+        <section id="auth-view" class="view" style="max-width: 28rem; margin: auto;">
+            <div class="card non-interactive">
+                <div class="auth-tabs">
+                    <div id="login-tab" class="tab tab-active" onclick="switchAuthTab('login')">Login</div>
+                    <div id="register-tab" class="tab" onclick="switchAuthTab('register')">Register</div>
+                </div>
+                <form id="login-form">
+                    <div style="margin-bottom: 1rem;">
+                        <label for="login-email" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Email</label>
+                        <input type="email" id="login-email" class="input-field" placeholder="you@example.com" required>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label for="login-password" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Password</label>
+                        <input type="password" id="login-password" class="input-field" required>
+                    </div>
+                    <div style="text-align: right; margin-bottom: 1.5rem;">
+                        <a href="#" onclick="showView('forgot-password-view')" style="font-size: 0.875rem;">Forgot Password?</a>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+                </form>
+                <form id="register-form" style="display: none;">
+                     <div style="margin-bottom: 1rem;"><label for="register-name" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Full Name</label><input type="text" id="register-name" class="input-field" placeholder="John Doe" required></div>
+                    <div style="margin-bottom: 1rem;"><label for="register-email" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Email</label><input type="email" id="register-email" class="input-field" placeholder="you@example.com" required></div>
+                    <div style="margin-bottom: 1rem;"><label for="register-password" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Password</label><input type="password" id="register-password" class="input-field" required></div>
+                    <div style="margin-bottom: 1.5rem;"><label for="register-role" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">I am a:</label><select id="register-role" class="input-field"><option value="Customer">Customer / Patient</option><option value="Doctor">Doctor / Agent</option></select></div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- =========== FORGOT PASSWORD VIEW =========== -->
+        <section id="forgot-password-view" class="view" style="max-width: 28rem; margin: auto;">
+            <div class="card non-interactive">
+                <h2 class="page-title" style="font-size:1.5rem; text-align:center; margin-bottom: 0.5rem;">Reset Password</h2>
+                <p style="text-align: center; color: var(--text-light); margin-bottom: 1.5rem;">Enter your email to receive a reset link.</p>
+                <form id="forgot-password-form">
+                    <div style="margin-bottom: 1.5rem;">
+                        <label for="forgot-email" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Email</label>
+                        <input type="email" id="forgot-email" class="input-field" placeholder="you@example.com" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Send Reset Link</button>
+                    <p style="text-align: center; margin-top: 1rem;"><a href="#" onclick="showView('auth-view')">&larr; Back to Login</a></p>
+                </form>
+            </div>
+        </section>
+
+        <!-- =========== CUSTOMER DASHBOARD VIEW =========== -->
+        <section id="customer-dashboard-view" class="view">
+            <h2 class="page-title">Customer Dashboard</h2>
+            <div class="card non-interactive" style="margin-bottom: 2.5rem;">
+                <h3 class="page-title" style="font-size:1.5rem; margin-bottom:1rem;">Upcoming Appointments</h3>
+                <div id="customer-appointments" class="appointment-grid"></div>
+            </div>
+            <div class="dashboard-grid" style="grid-template-columns: repeat(1, 1fr);">
+                <div class="card"><i class="ph ph-first-aid-kit" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Doctor's Instructions</h3><p style="color: var(--text-light); margin-bottom: 1rem;">View your latest personalized plan.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('doctor-instructions-view')">View Instructions</button></div>
+                <div class="card"><i class="ph ph-chat-dots" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Messages</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Chat with your healthcare providers.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('chat-view')">Open Messages</button></div>
+                <div class="card"><i class="ph ph-calendar-plus" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Book an Appointment</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Find expert Ayurvedic doctors.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('find-doctor-view')">Find a Doctor</button></div>
+                <div class="card"><i class="ph ph-notebook" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Wellness Journal</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Track your diet, mood, and symptoms.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('journal-view')">Open Journal</button></div>
+                <div class="card" style="background-color: #f0fdf4; border: 2px dashed var(--secondary-color);"><i class="ph ph-sparkle" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">AI Wellness Assistant</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Ask general wellness questions.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('ai-wellness-view')">Ask AI</button></div>
+            </div>
+        </section>
+
+        <!-- =========== DOCTOR DASHBOARD VIEW =========== -->
+        <section id="doctor-dashboard-view" class="view">
+             <h2 class="page-title">Doctor Dashboard</h2>
+              <div class="card non-interactive" style="margin-bottom: 2.5rem;">
+                <h3 class="page-title" style="font-size:1.5rem; margin-bottom:1rem;">Today's Appointments</h3>
+                <div id="doctor-appointments" class="appointment-grid"></div>
+             </div>
+             <div class="dashboard-grid">
+                 <div class="card"><i class="ph ph-calendar" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Manage Schedule</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Set your availability.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('schedule-management-view')">Open Calendar</button></div>
+                 <div class="card"><i class="ph ph-chat-dots" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Messages</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Chat with your patients.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('chat-view')">Open Messages</button></div>
+                 <div class="card"><i class="ph ph-users-three" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">My Patients</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Access patient history.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('patient-list-view')">View Patients</button></div>
+                 <div class="card"><i class="ph ph-star" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Patient Feedback</h3><p style="color: var(--text-light); margin-bottom: 1rem;">See your latest reviews.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('doctor-reviews-view')">View Reviews</button></div>
+                 <div class="card"><i class="ph ph-wallet" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Earnings</h3><p style="color: var(--text-light); margin-bottom: 1rem;">View your financial overview.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('earnings-view')">My Earnings</button></div>
+                 <div class="card" style="background-color: #f0fdf4; border: 2px dashed var(--secondary-color);"><i class="ph ph-magic-wand" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">AI Summarizer</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Generate patient-friendly summaries.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('ai-summarizer-view')">Use AI Tool</button></div>
+             </div>
+        </section>
+
+        <!-- =========== ADMIN DASHBOARD VIEW =========== -->
+        <section id="admin-dashboard-view" class="view">
+            <h2 class="page-title">Admin Panel</h2>
+            <div class="dashboard-grid" style="margin-bottom: 2rem;">
+                <div class="card non-interactive" style="text-align: center;"><p style="font-size: 2.25rem; font-weight: 700; color: var(--secondary-color);">1,250</p><p style="color: var(--text-light);">Total Users</p></div>
+                <div class="card non-interactive" style="text-align: center;"><p style="font-size: 2.25rem; font-weight: 700; color: var(--secondary-color);">75</p><p style="color: var(--text-light);">Verified Doctors</p></div>
+                <div class="card non-interactive" style="text-align: center;"><p style="font-size: 2.25rem; font-weight: 700; color: var(--secondary-color);">312</p><p style="color: var(--text-light);">Appointments this Month</p></div>
+                <div class="card non-interactive" style="text-align: center;"><p style="font-size: 2.25rem; font-weight: 700; color: var(--secondary-color);">₹1,264,000</p><p style="color: var(--text-light);">Monthly Revenue</p></div>
+            </div>
+            <div style="display: grid; gap: 2rem; grid-template-columns: 1fr;">
+                <div class="card non-interactive"><h3 class="page-title" style="font-size: 1.5rem; margin-bottom: 1rem;">Admin Actions</h3>
+                    <div style="display:flex; flex-wrap:wrap; gap:1rem;">
+                        <button class="btn btn-secondary" onclick="showView('user-management-view')">Manage Users</button>
+                        <button class="btn btn-secondary" onclick="showView('service-management-view')">Manage Services</button>
+                    </div>
+                </div>
+                <div class="card non-interactive"><h3 class="page-title" style="font-size: 1.5rem; margin-bottom: 1rem;">Doctor Verification Queue <span style="font-size: 0.75rem; background-color: #ef4444; color: white; border-radius: 9999px; padding: 0.1rem 0.5rem;">2</span></h3><div id="admin-verification-queue"></div></div>
+            </div>
+        </section>
+
+        <!-- ================================================== -->
+        <!-- =========== DETAILED FEATURE VIEWS START =========== -->
+        <!-- ================================================== -->
+        
+        <!-- =========== APPOINTMENT DETAIL VIEW =========== -->
+        <section id="appointment-detail-view" class="view">
+            <button class="btn btn-secondary" style="margin-bottom: 1.5rem;" onclick="showDashboard()">&larr; Back to Dashboard</button>
+            <h2 id="ad-title" class="page-title">Appointment Details</h2>
+            <div class="detail-grid">
+                <!-- Left Column -->
+                <div>
+                    <div class="card non-interactive" style="margin-bottom: 1.5rem;">
+                        <div id="ad-header-info" class="detail-info-card">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                    <div class="card non-interactive">
+                        <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--primary-color); margin-bottom: 1rem;">Details</h3>
+                        <p><strong>Service:</strong> <span id="ad-service"></span></p>
+                        <p><strong>Date:</strong> <span id="ad-date"></span></p>
+                        <p><strong>Time:</strong> <span id="ad-time"></span></p>
+                        <p><strong>Type:</strong> <span id="ad-type"></span></p>
+                        <p><strong>Status:</strong> <span id="ad-status" style="font-weight: bold; color: var(--secondary-color);"></span></p>
+                    </div>
+                </div>
+                <!-- Right Column -->
+                <div>
+                    <div class="card non-interactive" style="text-align: center; margin-bottom: 1.5rem;">
+                         <p style="font-size: 3rem; font-weight: 700; color: var(--primary-color);" id="ad-countdown-days">--</p>
+                         <p style="color: var(--text-light); margin-top: -0.5rem;" id="ad-countdown-label">Days to go</p>
+                    </div>
+                     <div class="card non-interactive">
+                         <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--primary-color); margin-bottom: 1rem;">Payment</h3>
+                         <p style="display: flex; justify-content: space-between;"><span>Service Fee</span> <strong id="ad-price"></strong></p>
+                         <hr style="border: none; border-top: 1px solid var(--border-color); margin: 1rem 0;">
+                         <p style="display: flex; justify-content: space-between; font-weight: bold;"><span>Total</span> <span id="ad-total-price"></span></p>
+                     </div>
+                     <div id="ad-action-buttons" style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                        <!-- Action buttons populated by JS -->
+                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========== FIND A DOCTOR VIEW =========== -->
+        <section id="find-doctor-view" class="view">
+             <h2 class="page-title" style="margin-bottom: 0.5rem;">Find a Doctor</h2>
+             <p class="page-subtitle">Search for a specialist that fits your needs.</p>
+             <div class="card non-interactive form-grid" style="margin-bottom: 2rem; align-items: end; grid-template-columns: repeat(1, 1fr);">
+                 <input type="text" placeholder="Location (e.g., Chandigarh)" class="input-field">
+                 <select class="input-field"><option>Any Specialization</option><option>Panchakarma</option><option>Kayachikitsa</option></select>
+                 <select class="input-field"><option>Any Rating</option><option>4 Stars & Up</option><option>3 Stars & Up</option></select>
+                 <button class="btn btn-primary" style="width: 100%;">Search</button>
+             </div>
+             <div id="doctor-list-container" class="doctor-list-grid"></div>
+        </section>
+        
+        <!-- =========== DOSHA QUIZ VIEW (GAMIFIED) =========== -->
+        <section id="dosha-quiz-view" class="view" style="max-width: 42rem; margin: auto;">
+             <div id="quiz-container" class="card non-interactive quiz-card">
+                <div id="quiz-start-screen">
+                    <div style="text-align: center;">
+                        <i class="ph-sparkle" style="font-size: 4rem; color: var(--accent-color); margin-bottom: 1rem;"></i>
+                        <h2 class="page-title" style="margin-bottom: 0.5rem;">Discover Your Dosha</h2>
+                        <p class="page-subtitle">Answer 5 quick questions to find your unique mind-body type.</p>
+                        <button class="btn btn-primary" onclick="startDoshaQuiz()">Start the Quiz</button>
+                    </div>
+                </div>
+                <div id="quiz-question-screen" style="display: none;">
+                    <div class="quiz-progress-bar-container">
+                        <div id="quiz-progress-bar" class="quiz-progress-bar"></div>
+                    </div>
+                    <div id="quiz-question-container">
+                        <!-- Question content will be injected here -->
+                    </div>
+                </div>
+                <div id="quiz-result-screen" style="display: none;">
+                     <!-- Result content will be injected here -->
+                </div>
+             </div>
+        </section>
+
+        <!-- =========== DOCTOR'S INSTRUCTIONS VIEW =========== -->
+        <section id="doctor-instructions-view" class="view">
+            <h2 class="page-title">Doctor's Instructions</h2>
+            <p class="page-subtitle">Personalized plan from Dr. Anjali Sharma, updated 1 day ago.</p>
+            <div class="instructions-grid">
+                <!-- Diet Card -->
+                <div class="card non-interactive instruction-card">
+                    <div class="instruction-card-header">
+                        <i class="ph-fill ph-bowl-food"></i>
+                        <h3>Dietary Plan</h3>
+                    </div>
+                    <ul>
+                        <li>Favor warm, cooked, and slightly oily foods.</li>
+                        <li>Incorporate sweet, sour, and salty tastes.</li>
+                        <li>Reduce intake of cold, dry, and light foods.</li>
+                        <li>Sip warm ginger tea throughout the day.</li>
+                    </ul>
+                </div>
+                <!-- Exercise Card -->
+                <div class="card non-interactive instruction-card">
+                    <div class="instruction-card-header">
+                        <i class="ph-fill ph-heartbeat"></i>
+                        <h3>Exercise & Yoga</h3>
+                    </div>
+                    <ul>
+                        <li>Practice grounding yoga poses like Warrior II and Mountain Pose.</li>
+                        <li>Avoid high-intensity workouts; opt for gentle walks or Tai Chi.</li>
+                        <li>Focus on deep, slow breathing (pranayama).</li>
+                    </ul>
+                </div>
+                 <!-- Medicine Card -->
+                <div class="card non-interactive instruction-card">
+                    <div class="instruction-card-header">
+                        <i class="ph-fill ph-pill"></i>
+                        <h3>Medicines</h3>
+                    </div>
+                    <ul>
+                        <li><strong>Ashwagandha Churna:</strong> 1 tsp with warm milk before bed.</li>
+                        <li><strong>Triphala Guggulu:</strong> 2 tablets after lunch.</li>
+                    </ul>
+                </div>
+                <!-- Lifestyle Card -->
+                <div class="card non-interactive instruction-card">
+                    <div class="instruction-card-header">
+                        <i class="ph-fill ph-bed"></i>
+                        <h3>Lifestyle</h3>
+                    </div>
+                    <ul>
+                        <li>Maintain a regular daily routine (Dinacharya).</li>
+                        <li>Practice daily self-massage (Abhyanga) with warm sesame oil.</li>
+                        <li>Ensure you go to sleep by 10 PM.</li>
+                    </ul>
+                </div>
+                <!-- Attachments Card -->
+                <div class="card non-interactive instruction-card">
+                    <div class="instruction-card-header">
+                        <i class="ph-fill ph-paperclip"></i>
+                        <h3>Attachments</h3>
+                    </div>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <a href="#" class="btn btn-sm btn-secondary" style="display:inline-flex; align-items:center; gap:0.5rem;"><i class="ph ph-file-pdf"></i> Diet_Plan.pdf</a>
+                        <a href="#" class="btn btn-sm btn-secondary" style="display:inline-flex; align-items:center; gap:0.5rem;"><i class="ph ph-video-camera"></i> Yoga_Intro.mp4</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========== AI WELLNESS ASSISTANT VIEW =========== -->
+        <section id="ai-wellness-view" class="view" style="max-width: 42rem; margin: auto;">
+            <div class="card non-interactive">
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                    <i class="ph-fill ph-robot" style="font-size: 2.5rem; color: var(--secondary-color);"></i>
+                    <div>
+                        <h2 class="page-title" style="margin-bottom: 0;">AI Wellness Assistant</h2>
+                        <p style="color: var(--text-light);">Ask a question about Ayurveda, diet, or healthy habits.</p>
+                    </div>
+                </div>
+                <div id="ai-chat-history" class="ai-chat-history">
+                    <div style="text-align: center; color: var(--text-light); padding: 1rem;">Welcome! How can I help you on your wellness journey today?</div>
+                </div>
+                <form id="ai-wellness-form" style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="ai-wellness-prompt" class="input-field" placeholder="e.g., What are good foods for Pitta dosha?" required>
+                    <button type="submit" id="ai-wellness-submit" class="btn btn-primary" style="width: 6rem; display: flex; align-items: center; justify-content: center;">Send</button>
+                </form>
+                 <p style="font-size: 0.75rem; color: #9ca3af; margin-top: 0.5rem; text-align: center;">Disclaimer: This AI assistant is for informational purposes only and does not constitute medical advice.</p>
+            </div>
+        </section>
+
+        <!-- =========== AI TREATMENT SUMMARIZER VIEW =========== -->
+        <section id="ai-summarizer-view" class="view" style="max-width: 48rem; margin: auto;">
+            <div class="card non-interactive">
+                 <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                    <i class="ph-fill ph-magic-wand" style="font-size: 2.5rem; color: var(--secondary-color);"></i>
+                    <div>
+                        <h2 class="page-title" style="margin-bottom: 0;">AI Treatment Summarizer</h2>
+                        <p style="color: var(--text-light);">Paste your clinical notes below to generate a patient-friendly summary.</p>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
+                    <div>
+                        <label for="doctor-notes" style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Your Clinical Notes</label>
+                        <textarea id="doctor-notes" rows="10" class="input-field" placeholder="e.g., Patient presented with symptoms of agni mandya... Prescribed deepana and pachana herbs..."></textarea>
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Generated Summary</label>
+                        <div id="ai-summary-output" style="height: 100%; background-color: var(--bg-light); border-radius: 0.5rem; padding: 1rem; border: 1px solid var(--border-color); color: var(--text-light);">The summary will appear here...</div>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 1.5rem;">
+                    <button id="ai-summarize-button" class="btn btn-primary" style="font-size: 1.125rem;">Generate Summary</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========== PROFILE VIEW (ALL ROLES) =========== -->
+        <section id="profile-view" class="view">
+            <h2 class="page-title">My Profile</h2>
+            <div class="card non-interactive profile-grid">
+                <div style="text-align: center;">
+                    <img id="profile-img" src="https://placehold.co/150x150/f5f5dc/3a3a3a?text=A" alt="Profile Picture" style="width: 150px; height: 150px; border-radius: 9999px; margin: auto; border: 4px solid var(--secondary-color);">
+                    <button class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem; margin-top: 1rem;">Upload Photo</button>
+                </div>
+                <div>
+                    <form id="profile-form">
+                        <div style="margin-bottom: 1rem;">
+                            <label for="profile-name" style="display: block; font-weight: 500; margin-bottom: 0.5rem;">Full Name</label>
+                            <input type="text" id="profile-name" class="input-field" value="Aisha">
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label for="profile-email" style="display: block; font-weight: 500; margin-bottom: 0.5rem;">Email Address</label>
+                            <input type="email" id="profile-email" class="input-field" value="customer@ayur.com" readonly>
+                        </div>
+                        <!-- Role-specific fields will be shown here -->
+                        <div id="role-specific-profile-fields"></div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========== SCHEDULE MANAGEMENT (DOCTOR) =========== -->
+        <section id="schedule-management-view" class="view">
+            <h2 class="page-title">Manage Schedule</h2>
+            <div class="schedule-layout">
+                <div class="card non-interactive" style="overflow-x: auto;">
+                    <h3 style="margin-top:0; font-size: 1.5rem; color: var(--primary-color);">This Week's Calendar</h3>
+                    <div id="calendar-grid" class="calendar-grid">
+                        <!-- Calendar will be rendered by JS -->
+                    </div>
+                </div>
+                <div class="card non-interactive">
+                     <h3 style="margin-top:0; font-size: 1.5rem; color: var(--primary-color);">Set Availability</h3>
+                     <form id="availability-form">
+                        <div style="margin-bottom: 1rem;">
+                            <label for="av-date" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Date</label>
+                            <input type="date" id="av-date" class="input-field" required>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label for="av-start-time" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Start Time</label>
+                            <input type="time" id="av-start-time" class="input-field" required>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label for="av-end-time" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">End Time</label>
+                            <input type="time" id="av-end-time" class="input-field" required>
+                        </div>
+                         <div style="margin-bottom: 1.5rem;">
+                            <label for="av-type" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Type</label>
+                            <select id="av-type" class="input-field">
+                                <option value="available">Available</option>
+                                <option value="unavailable">Unavailable / Block</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" type="submit">Update Schedule</button>
+                     </form>
+                </div>
+            </div>
+        </section>
+        
+        <!-- =========== DOCTOR REVIEWS VIEW =========== -->
+        <section id="doctor-reviews-view" class="view">
+            <h2 class="page-title">Patient Feedback</h2>
+            <div id="reviews-container" style="display: grid; gap: 1.5rem; grid-template-columns: 1fr;">
+                <!-- Reviews will be rendered by JS -->
+            </div>
+        </section>
+
+        <!-- =========== CHAT VIEW =========== -->
+        <section id="chat-view" class="view">
+             <h2 class="page-title">Messages</h2>
+             <div class="card non-interactive" style="display: grid; grid-template-columns: 1fr; height: 70vh;">
+                <!-- This would be a more complex component in a real app -->
+                <div style="border: 1px solid var(--border-color); border-radius: 0.5rem; display:flex; align-items:center; justify-content:center; flex-direction:column; text-align:center;">
+                    <i class="ph-fill ph-chat-dots" style="font-size: 4rem; color: var(--secondary-color);"></i>
+                    <h3 style="font-size: 1.5rem; margin-top: 1rem; color: var(--primary-color);">In-App Messaging</h3>
+                    <p style="color: var(--text-light); max-width: 25rem;">This is a placeholder for the full chat interface. In a real application, you'd see a list of conversations and the active chat window here.</p>
+                </div>
+             </div>
+        </section>
+
+        <!-- =========== EDUCATIONAL FEED VIEW =========== -->
+        <section id="educational-feed-view" class="view">
+             <h2 class="page-title">Learn & Discover</h2>
+             <p class="page-subtitle">Explore articles on Ayurvedic wisdom, healthy recipes, and wellness tips.</p>
+             <div id="article-grid" class="article-grid">
+                <!-- Articles will be rendered by JS -->
+             </div>
+        </section>
+
+         <!-- =========== JOURNAL & PROGRESS VIEW (CUSTOMER) =========== -->
+        <section id="journal-view" class="view">
+             <h2 class="page-title">Wellness Journal</h2>
+             <div class="card non-interactive">
+                 <form id="journal-form">
+                     <div style="margin-bottom: 1rem;">
+                        <label for="journal-date" style="display: block; font-weight: 500; margin-bottom: 0.5rem;">Date</label>
+                        <input type="date" id="journal-date" class="input-field">
+                     </div>
+                     <div style="margin-bottom: 1rem;">
+                        <label for="journal-mood" style="display: block; font-weight: 500; margin-bottom: 0.5rem;">How are you feeling today? (1-5)</label>
+                        <input type="range" id="journal-mood" class="input-field" min="1" max="5">
+                     </div>
+                      <div style="margin-bottom: 1.5rem;">
+                        <label for="journal-notes" style="display: block; font-weight: 500; margin-bottom: 0.5rem;">Notes (Symptoms, Diet, etc.)</label>
+                        <textarea id="journal-notes" rows="4" class="input-field"></textarea>
+                     </div>
+                     <button type="submit" class="btn btn-primary">Add Entry</button>
+                 </form>
+             </div>
+        </section>
+
+        <section id="progress-tracker-view" class="view">
+            <h2 class="page-title">Progress Tracker</h2>
+            <div class="card non-interactive">
+                <h3 style="font-size: 1.5rem; font-weight: 600; color: var(--primary-color); margin-bottom: 1.5rem;">Mood Over Time</h3>
+                <div style="display: flex; justify-content: space-around; align-items: flex-end; height: 200px; border-left: 2px solid var(--border-color); border-bottom: 2px solid var(--border-color); padding-left: 1rem;">
+                    <!-- Mock Chart Bars -->
+                    <div style="width: 15%; background-color: var(--secondary-color); height: 60%;" title="Day 1: 3/5"></div>
+                    <div style="width: 15%; background-color: var(--secondary-color); height: 80%;" title="Day 2: 4/5"></div>
+                    <div style="width: 15%; background-color: var(--secondary-color); height: 70%;" title="Day 3: 3.5/5"></div>
+                    <div style="width: 15%; background-color: var(--secondary-color); height: 90%;" title="Day 4: 4.5/5"></div>
+                    <div style="width: 15%; background-color: var(--secondary-color); height: 85%;" title="Day 5: 4.25/5"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========== PATIENT LIST (DOCTOR) =========== -->
+        <section id="patient-list-view" class="view">
+            <h2 class="page-title">My Patients</h2>
+            <div class="card non-interactive">
+                <table id="patient-table">
+                    <thead><tr><th>Name</th><th>Last Visit</th><th>Primary Dosha</th><th>Actions</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- =========== EARNINGS (DOCTOR) =========== -->
+        <section id="earnings-view" class="view">
+             <h2 class="page-title">Earnings</h2>
+             <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 2rem;">
+                 <div class="card non-interactive" style="text-align:center;"><p style="font-size:2rem; font-weight:700; color:var(--secondary-color);">₹100,000</p><p style="color:var(--text-light)">This Month</p></div>
+                 <div class="card non-interactive" style="text-align:center;"><p style="font-size:2rem; font-weight:700; color:var(--secondary-color);">₹700,000</p><p style="color:var(--text-light)">Total Earned</p></div>
+             </div>
+             <div class="card non-interactive">
+                 <h3 class="page-title" style="font-size:1.5rem; margin-bottom:1rem;">Recent Payouts</h3>
+                 <table>
+                     <thead><tr><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+                     <tbody>
+                         <tr><td>Sep 1, 2025</td><td>₹44,000</td><td><span style="color: #166534;">Completed</span></td></tr>
+                         <tr><td>Aug 1, 2025</td><td>₹38,400</td><td><span style="color: #166534;">Completed</span></td></tr>
+                     </tbody>
+                 </table>
+             </div>
+        </section>
+        
+        <!-- =========== USER MANAGEMENT (ADMIN) =========== -->
+        <section id="user-management-view" class="view">
+             <h2 class="page-title">User Management</h2>
+             <div class="card non-interactive">
+                 <input type="text" placeholder="Search users by name or email..." class="input-field" style="margin-bottom:1.5rem;">
+                 <div style="overflow-x:auto;">
+                    <table>
+                        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody id="user-management-table"></tbody>
+                    </table>
+                 </div>
+             </div>
+        </section>
+
+        <!-- =========== SERVICE MANAGEMENT (ADMIN) =========== -->
+        <section id="service-management-view" class="view">
+             <h2 class="page-title">Service Management</h2>
+             <div class="card non-interactive">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                    <p style="color:var(--text-light);">Add, edit, or remove services offered on the platform.</p>
+                    <button class="btn btn-primary">Add New Service</button>
+                </div>
+                 <div style="overflow-x:auto;">
+                    <table>
+                        <thead><tr><th>Service Name</th><th>Price</th><th>Category</th><th>Actions</th></tr></thead>
+                        <tbody id="service-management-table"></tbody>
+                    </table>
+                 </div>
+             </div>
+        </section>
+
+    </main>
+
+    <!-- =========== JAVASCRIPT LOGIC =========== -->
+    <script>
+        // --- MOCK DATA ---
+        const mockData = {
+            doctors: [{ id: 1, name: "Dr. Anjali Sharma", specialization: "Panchakarma Specialist", location: "Chandigarh, India", rating: 4.8, img: 'https://placehold.co/100x100/a2c4a2/FFFFFF?text=AS' },{ id: 2, name: "Dr. Vikram Singh", specialization: "Kayachikitsa (Internal Medicine)", location: "Delhi, India", rating: 4.9, img: 'https://placehold.co/100x100/c4a2a2/FFFFFF?text=VS' },{ id: 3, name: "Dr. Priya Desai", specialization: "Ayurvedic Nutrition", location: "Mumbai, India", rating: 4.7, img: 'https://placehold.co/100x100/a2a2c4/FFFFFF?text=PD' },],
+            customerAppointments: [
+                { id: 101, doctor: "Dr. Anjali Sharma", doctorId: 1, service: "Panchakarma Consultation", date: "2025-09-15T11:00:00", type: "Video", price: 1500, status: 'Confirmed' },
+                { id: 102, doctor: "Dr. Priya Desai", doctorId: 3, service: "Diet Plan Follow-up", date: "2025-09-22T14:30:00", type: "In-Clinic", price: 1000, status: 'Confirmed' }
+            ],
+            doctorAppointments: [
+                { id: 201, patient: "Rohan Verma", service: "Initial Consultation", date: "2025-09-13T11:30:00", type: "Video", price: 1500, status: 'Confirmed' },
+                { id: 202, patient: "Sunita Kaur", service: "Abhyanga Therapy", date: "2025-09-13T14:00:00", type: "In-Clinic", price: 2500, status: 'Confirmed' }
+            ],
+            verificationQueue: [{ name: "Dr. Sameer Gupta", license: "Lic #84620", submitted: "2 days ago" },{ name: "Dr. Meera Iyer", license: "Lic #91234", submitted: "5 days ago" },],
+            patients: [{name: "Rohan Verma", lastVisit: "Sep 10, 2025", dosha: "Pitta-Vata"}, {name: "Sunita Kaur", lastVisit: "Sep 12, 2025", dosha: "Kapha"}],
+            users: [
+                { name: 'Aisha', email: 'customer@ayur.com', role: 'Customer', joined: '2025-08-20', status: 'Active', password: 'password' },
+                { name: 'Dr. Vikram Singh', email: 'doctor@ayur.com', role: 'Doctor', joined: '2025-07-15', status: 'Active', password: 'password' },
+                { name: 'Admin', email: 'admin@ayur.com', role: 'Admin', joined: '2025-01-01', status: 'Active', password: 'password' }
+            ],
+            services: [
+                { name: 'Panchakarma Consultation', price: 1500, category: 'Consultation' },
+                { name: 'Abhyanga Massage', price: 2500, category: 'Therapy' },
+                { name: 'Shirodhara', price: 3000, category: 'Therapy' },
+            ],
+            notifications: {
+                Customer: [
+                    { icon: 'calendar-check', text: 'Your appointment with Dr. Sharma is confirmed for Sep 15.', time: '1 day ago', read: false },
+                    { icon: 'chat-dots', text: 'You have a new message from Dr. Desai.', time: '3 days ago', read: false },
+                    { icon: 'leaf', text: 'New article available: "5 Herbs for a Healthy Monsoon Season".', time: '5 days ago', read: true },
+                ],
+                Doctor: [
+                     { icon: 'user-plus', text: 'New patient booking from Rohan Verma.', time: '2 hours ago', read: false },
+                     { icon: 'star', text: 'You received 5-star feedback from Aisha.', time: '1 day ago', read: true },
+                     { icon: 'currency-inr', text: 'A payout of ₹44,000 has been initiated.', time: '2 days ago', read: true },
+                ]
+            },
+            doshaQuizQuestions: [
+                {
+                    question: "My physical build is typically:",
+                    options: [
+                        { text: "Light, thin, and slender.", value: "Vata" },
+                        { text: "Medium, muscular, and athletic.", value: "Pitta" },
+                        { text: "Large, heavy, and well-built.", value: "Kapha" }
+                    ]
+                },
+                {
+                    question: "Under stress, I tend to be:",
+                    options: [
+                        { text: "Anxious, worried, and overwhelmed.", value: "Vata" },
+                        { text: "Irritable, short-tempered, and aggressive.", value: "Pitta" },
+                        { text: "Withdrawn, slow to react, and complacent.", value: "Kapha" }
+                    ]
+                },
+                {
+                    question: "My appetite is generally:",
+                    options: [
+                        { text: "Irregular, I often forget to eat.", value: "Vata" },
+                        { text: "Strong, I get 'hangry' if I miss a meal.", value: "Pitta" },
+                        { text: "Steady and moderate, I enjoy food.", value: "Kapha" }
+                    ]
+                },
+                 {
+                    question: "How is your skin usually?",
+                    options: [
+                        { text: "Dry, thin, and cool to the touch.", value: "Vata" },
+                        { text: "Oily, sensitive, and warm.", value: "Pitta" },
+                        { text: "Thick, cool, and smooth.", value: "Kapha" }
+                    ]
+                },
+                {
+                    question: "My energy levels are typically:",
+                    options: [
+                        { text: "Variable, coming in bursts.", value: "Vata" },
+                        { text: "High and focused, very driven.", value: "Pitta" },
+                        { text: "Sustained and steady, very calm.", value: "Kapha" }
+                    ]
+                },
+            ]
+        };
+
+        // --- APPLICATION STATE ---
+        let appState = { isLoggedIn: false, userRole: null, userName: '' };
+        let quizState = {
+            currentQuestionIndex: 0,
+            scores: { Vata: 0, Pitta: 0, Kapha: 0 }
+        };
+
+        // --- DOM ELEMENTS ---
+        const views = document.querySelectorAll('.view');
+        const authLinks = document.getElementById('auth-links');
+        const userMenu = document.getElementById('user-menu');
+        const welcomeMessage = document.getElementById('welcome-message');
+        const userDropdown = document.getElementById('user-dropdown');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const notificationPanel = document.getElementById('notification-panel');
+        const notificationBadge = document.getElementById('notification-badge');
+
+        const aiWellnessForm = document.getElementById('ai-wellness-form');
+        const aiSummarizeButton = document.getElementById('ai-summarize-button');
+        const forgotPasswordForm = document.getElementById('forgot-password-form');
+        const themeToggles = [document.getElementById('theme-toggle'), document.getElementById('theme-toggle-user')];
+        const profileForm = document.getElementById('profile-form');
+        const journalForm = document.getElementById('journal-form');
+        const mainNavLinks = document.getElementById('main-nav-links');
+
+        // --- ROUTING / VIEW MANAGEMENT ---
+        function showView(viewId) {
+            views.forEach(view => { view.style.display = 'none'; });
+            document.getElementById(viewId).style.display = 'block';
+            if(userDropdown) userDropdown.style.display = 'none';
+            if(notificationPanel) notificationPanel.style.display = 'none';
+            window.scrollTo(0, 0);
+        }
+        
+        function goHome() {
+            if (appState.isLoggedIn) {
+                showDashboard();
+            } else {
+                showView('home-view');
+            }
+        }
+
+        // --- UI UPDATE FUNCTIONS ---
+        function updateUI() {
+            if (appState.isLoggedIn) {
+                authLinks.style.display = 'none';
+                userMenu.style.display = 'flex';
+                welcomeMessage.textContent = `Welcome, ${appState.userName}!`;
+                mainNavLinks.style.display = appState.userRole === 'Customer' ? 'flex' : 'none';
+                renderNotifications();
+            } else {
+                authLinks.style.display = 'flex';
+                userMenu.style.display = 'none';
+                mainNavLinks.style.display = 'flex';
+            }
+        }
+        function showDashboard() { 
+            if (appState.userRole) { 
+                const dashboardId = `${appState.userRole.toLowerCase()}-dashboard-view`;
+                showView(dashboardId); 
+            } 
+        }
+        
+        // --- DYNAMIC CONTENT RENDERING ---
+        function renderAll() {
+            renderDoctorList();
+            renderAppointments();
+            renderAdminQueue();
+            renderPatientList();
+            renderUserManagementTable();
+            renderServiceManagementTable();
+        }
+        function renderDoctorList() {
+            const container = document.getElementById('doctor-list-container');
+            container.innerHTML = mockData.doctors.map(doc => `
+                <div class="card" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+                    <img src="${doc.img}" alt="${doc.name}" style="width: 6rem; height: 6rem; border-radius: 9999px; margin-bottom: 1rem; border: 4px solid var(--secondary-color);">
+                    <h4 style="font-size: 1.25rem; font-weight: 700; color: var(--primary-color);">${doc.name}</h4>
+                    <p style="color: var(--secondary-color); font-weight: 500;">${doc.specialization}</p>
+                    <p style="color: var(--text-light); font-size: 0.875rem; margin-bottom: 0.75rem;">${doc.location}</p>
+                    <div style="display: flex; align-items: center; gap: 0.25rem; color: var(--accent-color); margin-bottom: 1rem;"><i class="ph-fill ph-star"></i> <span>${doc.rating}</span></div>
+                    <button class="btn btn-primary" style="margin-top: auto; width: 100%;">Book Now</button>
+                </div>`).join('');
+        }
+        function renderAppointments() {
+            const currentDate = new Date('2025-09-13T11:58:00');
+            const getCountdown = (date) => {
+                const appointmentDate = new Date(date);
+                appointmentDate.setHours(0,0,0,0);
+                const today = new Date(currentDate);
+                today.setHours(0,0,0,0);
+
+                const diffTime = appointmentDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays === 0) return { text: "Today", value: new Date(date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
+                if (diffDays === 1) return { text: "Tomorrow", value: ""};
+                return { text: `In ${diffDays} days`, value: "" };
+            }
+
+            const custContainer = document.getElementById('customer-appointments');
+            custContainer.innerHTML = mockData.customerAppointments.map(apt => {
+                const countdown = getCountdown(apt.date);
+                return `
+                <div class="appointment-card">
+                    <div class="appointment-card-time">
+                        <div class="day">${countdown.value || countdown.text.split(' ')[1] || 'Today'}</div>
+                        <div class="label">${countdown.value ? 'Today' : countdown.text.split(' ')[0]}</div>
+                    </div>
+                    <div class="appointment-card-details">
+                        <h4>${apt.service}</h4>
+                        <p>${apt.doctor}</p>
+                        <p><i class="ph-fill ph-${apt.type === 'Video' ? 'video-camera' : 'buildings'}"></i> ${apt.type} &bull; ${new Date(apt.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                    </div>
+                    <div class="appointment-card-actions">
+                        ${apt.type === 'Video' ? `<button class="btn btn-primary btn-sm">Join Call</button>` : ''}
+                        <button class="btn btn-sm" style="background-color: transparent; border: 1px solid var(--border-color); color: var(--text-dark);" onclick="handleAppointmentClick(${apt.id}, 'Customer')">View Details</button>
+                    </div>
+                </div>`;
+            }).join('') || '<p style="color: var(--text-light);">No upcoming appointments.</p>';
+            
+            const docContainer = document.getElementById('doctor-appointments');
+            docContainer.innerHTML = mockData.doctorAppointments.map(apt => {
+                 const countdown = getCountdown(apt.date);
+                return `
+                <div class="appointment-card">
+                    <div class="appointment-card-time">
+                        <div class="day">${countdown.value || 'Today'}</div>
+                        <div class="label">${countdown.value ? '' : countdown.text}</div>
+                    </div>
+                    <div class="appointment-card-details">
+                        <h4>${apt.patient}</h4>
+                        <p>${apt.service}</p>
+                        <p><i class="ph-fill ph-${apt.type === 'Video' ? 'video-camera' : 'buildings'}"></i> ${apt.type}</p>
+                    </div>
+                    <div class="appointment-card-actions">
+                        ${apt.type === 'Video' ? `<button class="btn btn-primary btn-sm">Join Call</button>` : ''}
+                        <button class="btn btn-sm" style="background-color: transparent; border: 1px solid var(--border-color); color: var(--text-dark);" onclick="handleAppointmentClick(${apt.id}, 'Doctor')">View Details</button>
+                    </div>
+                </div>`;
+            }).join('') || '<p style="color: var(--text-light);">No appointments scheduled for today.</p>';
+        }
+        function renderAdminQueue() {
+            const queueContainer = document.getElementById('admin-verification-queue');
+            queueContainer.innerHTML = mockData.verificationQueue.map(req => `<div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid var(--border-color);"><div><p style="font-weight: 600;">${req.name} <span style="font-size: 0.875rem; color: var(--text-light); font-weight: 400;">(${req.license})</span></p><p style="font-size: 0.75rem; color: #6b7280;">Submitted ${req.submitted}</p></div><div style="display: flex; gap: 0.5rem;"><button class="btn" style="font-size:0.75rem; padding: 0.25rem 0.75rem; background-color: #22c55e; color:white;">Approve</button><button class="btn" style="font-size:0.75rem; padding: 0.25rem 0.75rem; background-color: #ef4444; color:white;">Reject</button></div></div>`).join('');
+        }
+        function renderPatientList() {
+            const tableBody = document.querySelector('#patient-table tbody');
+            tableBody.innerHTML = mockData.patients.map(p => `<tr><td>${p.name}</td><td>${p.lastVisit}</td><td>${p.dosha}</td><td><button class="btn btn-secondary" style="font-size:0.8rem; padding:0.25rem 0.5rem;">View</button></td></tr>`).join('');
+        }
+        function renderUserManagementTable() {
+            const tableBody = document.getElementById('user-management-table');
+            tableBody.innerHTML = mockData.users.map(u => `<tr><td>${u.name}</td><td>${u.email}</td><td>${u.role}</td><td>${u.joined}</td><td><span style="color:${u.status === 'Active' ? '#166534' : '#ef4444'}">${u.status}</span></td><td><button class="btn" style="font-size:0.8rem; padding:0.25rem 0.5rem; background-color:#ef4444; color:white;">Suspend</button></td></tr>`).join('');
+        }
+        function renderServiceManagementTable() {
+             const tableBody = document.getElementById('service-management-table');
+            tableBody.innerHTML = mockData.services.map(s => `<tr><td>${s.name}</td><td>₹${s.price.toFixed(2)}</td><td>${s.category}</td><td><button class="btn btn-secondary" style="font-size:0.8rem; padding:0.25rem 0.5rem;">Edit</button></td></tr>`).join('');
+        }
+
+        // --- APPOINTMENT DETAIL LOGIC ---
+        function handleAppointmentClick(appointmentId, role) {
+            let appointment;
+            if (role === 'Customer') {
+                appointment = mockData.customerAppointments.find(a => a.id === appointmentId);
+            } else {
+                appointment = mockData.doctorAppointments.find(a => a.id === appointmentId);
+            }
+            if (appointment) {
+                showAppointmentDetail(appointment, role);
+            }
+        }
+
+        function showAppointmentDetail(appointment, role) {
+            const headerInfo = document.getElementById('ad-header-info');
+            const actionButtons = document.getElementById('ad-action-buttons');
+            const appointmentDate = new Date(appointment.date);
+            const currentDate = new Date('2025-09-13T11:58:00');
+            const diffTime = appointmentDate - currentDate;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            document.getElementById('ad-service').textContent = appointment.service;
+            document.getElementById('ad-date').textContent = appointmentDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('ad-time').textContent = appointmentDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            document.getElementById('ad-type').textContent = appointment.type;
+            document.getElementById('ad-status').textContent = appointment.status;
+            document.getElementById('ad-price').textContent = `₹${appointment.price.toFixed(2)}`;
+            document.getElementById('ad-total-price').textContent = `₹${appointment.price.toFixed(2)}`;
+            document.getElementById('ad-countdown-days').textContent = diffDays >= 0 ? diffDays : 'Past';
+            document.getElementById('ad-countdown-label').textContent = diffDays === 1 ? 'Day to go' : 'Days to go';
+
+            if (role === 'Customer') {
+                const doctor = mockData.doctors.find(d => d.id === appointment.doctorId);
+                headerInfo.innerHTML = `
+                    <img src="${doctor.img}" alt="${doctor.name}">
+                    <div>
+                        <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--primary-color); margin:0;">${doctor.name}</h3>
+                        <p style="color: var(--text-light); margin:0;">${doctor.specialization}</p>
+                    </div>`;
+                actionButtons.innerHTML = `
+                    <button class="btn btn-primary">Reschedule</button>
+                    <button class="btn" style="background-color: transparent; border: 1px solid var(--border-color); color: var(--text-dark);">Cancel Appointment</button>
+                `;
+            } else { // Doctor's view
+                headerInfo.innerHTML = `
+                    <img src="https://placehold.co/80x80/f5f5dc/3a3a3a?text=${appointment.patient.charAt(0)}" alt="${appointment.patient}">
+                    <div>
+                        <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--primary-color); margin:0;">${appointment.patient}</h3>
+                        <p style="color: var(--text-light); margin:0;">Patient</p>
+                    </div>`;
+                actionButtons.innerHTML = `
+                    <button class="btn btn-primary">${appointment.type === 'Video' ? 'Join Video Call' : 'Mark as Complete'}</button>
+                    <button class="btn btn-secondary">View Patient History</button>
+                `;
+            }
+            showView('appointment-detail-view');
+        }
+        
+        // --- EVENT HANDLERS & AUTH LOGIC ---
+        function toggleDropdown() { userDropdown.style.display = userDropdown.style.display === 'block' ? 'none' : 'block'; }
+        function switchAuthTab(tab) {
+            const loginTab = document.getElementById('login-tab'), regTab = document.getElementById('register-tab');
+            loginTab.classList.toggle('tab-active', tab === 'login');
+            regTab.classList.toggle('tab-active', tab === 'register');
+            loginForm.style.display = tab === 'login' ? 'block' : 'none';
+            registerForm.style.display = tab === 'register' ? 'block' : 'none';
+        }
+        function prefillLogin(email, password = 'password') {
+            document.getElementById('login-email').value = email;
+            document.getElementById('login-password').value = password;
+        }
+
+        function showLoginForRole(role) {
+            showView('auth-view');
+            switchAuthTab('login');
+            if (role === 'customer') prefillLogin('customer@ayur.com');
+            else if (role === 'doctor') prefillLogin('doctor@ayur.com');
+            else if (role === 'admin') prefillLogin('admin@ayur.com');
+        }
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const user = mockData.users.find(u => u.email === email && u.password === password);
+
+            if (user) {
+                appState.isLoggedIn = true;
+                appState.userRole = user.role;
+                appState.userName = user.name;
+                updateUI();
+                showDashboard();
+            } else {
+                alert('Invalid credentials. Please try again.');
+            }
+        });
+
+        registerForm.addEventListener('submit', (e) => { e.preventDefault(); alert('Registration successful! (This is a demo)'); switchAuthTab('login'); });
+        forgotPasswordForm.addEventListener('submit', (e) => { e.preventDefault(); alert('Password reset link sent! (This is a demo)'); showView('auth-view'); });
+        profileForm.addEventListener('submit', (e) => { e.preventDefault(); alert('Profile updated!'); });
+        journalForm.addEventListener('submit', (e) => { e.preventDefault(); alert('Journal entry saved!'); journalForm.reset(); });
+        function logout() { appState.isLoggedIn = false; appState.userRole = null; appState.userName = ''; updateUI(); showView('home-view'); }
+        
+        // --- NOTIFICATION LOGIC ---
+        function toggleNotificationPanel() {
+            notificationPanel.style.display = notificationPanel.style.display === 'block' ? 'none' : 'block';
+            if (notificationPanel.style.display === 'block') {
+                // Mark notifications as read
+                const notifications = mockData.notifications[appState.userRole] || [];
+                notifications.forEach(n => n.read = true);
+                renderNotifications();
+            }
+        }
+        function renderNotifications() {
+            const notifications = mockData.notifications[appState.userRole] || [];
+            const unreadCount = notifications.filter(n => !n.read).length;
+            
+            notificationBadge.style.display = unreadCount > 0 ? 'block' : 'none';
+
+            if (notifications.length === 0) {
+                notificationPanel.innerHTML = '<div style="padding: 1.5rem; text-align: center; color: var(--text-light);">No new notifications.</div>';
+                return;
+            }
+            notificationPanel.innerHTML = notifications.map(n => `
+                <div class="notification-item">
+                    <i class="ph-fill ph-${n.icon}"></i>
+                    <div>
+                        <p>${n.text}</p>
+                        <p class="time">${n.time}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- DOSHA QUIZ LOGIC ---
+        function startDoshaQuiz() {
+            quizState = { currentQuestionIndex: 0, scores: { Vata: 0, Pitta: 0, Kapha: 0 } };
+            document.getElementById('quiz-start-screen').style.display = 'none';
+            document.getElementById('quiz-result-screen').style.display = 'none';
+            document.getElementById('quiz-question-screen').style.display = 'block';
+            renderDoshaQuestion();
+        }
+
+        function renderDoshaQuestion() {
+            const container = document.getElementById('quiz-question-container');
+            const progressBar = document.getElementById('quiz-progress-bar');
+            const questionData = mockData.doshaQuizQuestions[quizState.currentQuestionIndex];
+
+            progressBar.style.width = `${((quizState.currentQuestionIndex) / mockData.doshaQuizQuestions.length) * 100}%`;
+
+            container.classList.add('question-exit');
+
+            setTimeout(() => {
+                container.innerHTML = `
+                    <p style="font-weight: 600; font-size: 1.25rem; text-align: center; margin-bottom: 1.5rem;">${questionData.question}</p>
+                    <div>
+                        ${questionData.options.map(opt => `<button class="quiz-option" onclick="handleDoshaAnswer('${opt.value}')">${opt.text}</button>`).join('')}
+                    </div>`;
+                container.classList.remove('question-exit');
+            }, 300);
+        }
+
+        function handleDoshaAnswer(doshaValue) {
+            quizState.scores[doshaValue]++;
+            quizState.currentQuestionIndex++;
+
+            if (quizState.currentQuestionIndex < mockData.doshaQuizQuestions.length) {
+                renderDoshaQuestion();
+            } else {
+                document.getElementById('quiz-progress-bar').style.width = '100%';
+                showDoshaResult();
+            }
+        }
+        
+        function showDoshaResult() {
+            let dominantDosha = "Balanced";
+            let maxScore = 0;
+            for(const dosha in quizState.scores) {
+                if(quizState.scores[dosha] > maxScore) {
+                    maxScore = quizState.scores[dosha];
+                    dominantDosha = dosha;
+                }
+            }
+            
+            const resultScreen = document.getElementById('quiz-result-screen');
+            resultScreen.innerHTML = `
+                <div class="card non-interactive dosha-result-card" style="text-align: center;">
+                    <p style="font-size: 1rem; color: var(--text-light);">Your dominant dosha is</p>
+                    <h3>${dominantDosha}</h3>
+                    <p style="max-width: 30rem; margin: 1rem auto;">This suggests your constitution is primarily influenced by the elements of ${dominantDosha === 'Vata' ? 'Space and Air' : dominantDosha === 'Pitta' ? 'Fire and Water' : 'Earth and Water'}. Understanding your Dosha is the first step towards personalized wellness.</p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
+                        <button class="btn btn-secondary" onclick="startDoshaQuiz()">Retake Quiz</button>
+                        <button class="btn btn-primary">Share with Doctor</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('quiz-question-screen').style.display = 'none';
+            resultScreen.style.display = 'block';
+        }
+
+
+        // --- THEME LOGIC ---
+        function applyTheme(isDark) {
+            document.body.classList.toggle('dark', isDark);
+            themeToggles.forEach(toggle => toggle.checked = isDark);
+        }
+        themeToggles.forEach(toggle => {
+            toggle.addEventListener('change', (e) => {
+                const isDark = e.target.checked;
+                localStorage.setItem('darkTheme', isDark);
+                applyTheme(isDark);
+            });
+        });
+
+        // --- GEMINI API INTEGRATION & LOGIC ---
+        async function callGeminiAPI(userQuery, systemInstruction) {
+            console.log("Calling mock Gemini API with query:", userQuery);
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    if (systemInstruction.includes("wellness assistant")) {
+                         if (userQuery.toLowerCase().includes("pitta")) resolve("For a Pitta dosha, cooling and sweet foods are beneficial. Think cucumbers, melons, coconut, and rice. It's best to avoid spicy, salty, and sour foods like chili peppers, pickles, and excessive citrus.");
+                         else if (userQuery.toLowerCase().includes("sleep")) resolve("To improve sleep, Ayurveda suggests creating a calming evening routine. Try to go to bed before 10 PM, avoid screens an hour before sleep, and drink a warm cup of milk with a pinch of nutmeg. A gentle foot massage with sesame oil can also be very relaxing.");
+                         else resolve("That's an excellent question. In Ayurveda, maintaining a balanced 'Agni' (digestive fire) is key to good health. This is achieved through eating mindfully, choosing foods appropriate for your dosha, and incorporating gentle spices like ginger and cumin into your diet.");
+                    } else if (systemInstruction.includes("summarize")) {
+                        resolve(`<h4 style="font-weight: 700; margin-bottom: 0.5rem;">Summary for Your Patient:</h4><ul style="list-style-position: inside; padding-left: 0; margin: 0;"><li style="margin-bottom: 0.25rem;"><strong>Main Issue:</strong> You've been experiencing some weakness in your digestion.</li><li style="margin-bottom: 0.25rem;"><strong>Our Goal:</strong> We want to strengthen your digestive system to improve your energy.</li><li style="margin-bottom: 0.25rem;"><strong>Treatment Plan:</strong> I have prescribed some natural herbs to help with digestion.</li><li style="margin-bottom: 0.25rem;"><strong>Next Steps:</strong> Please follow the diet plan we discussed and try to incorporate a short, gentle walk after your meals.</li></ul>`);
+                    } else { resolve("I'm sorry, I can't help with that right now."); }
+                }, 1500);
+            });
+        }
+        aiWellnessForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const promptInput = document.getElementById('ai-wellness-prompt');
+            const submitButton = document.getElementById('ai-wellness-submit');
+            const chatHistory = document.getElementById('ai-chat-history');
+            const userQuery = promptInput.value.trim();
+            if (!userQuery) return;
+            chatHistory.innerHTML += `<div style="text-align: right; margin: 0.5rem 0;"><span style="background-color: var(--primary-color); color: white; border-radius: 0.5rem; padding: 0.5rem 0.75rem; display: inline-block; max-width: 80%;">${userQuery}</span></div>`;
+            promptInput.value = '';
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            submitButton.innerHTML = `<div class="spinner" style="margin: auto;"></div>`;
+            submitButton.disabled = true;
+            const systemInstruction = "Act as a friendly and knowledgeable Ayurvedic wellness assistant. Provide clear, safe, and general advice. Do not give medical prescriptions. Encourage consulting a doctor for serious issues.";
+            const aiResponse = await callGeminiAPI(userQuery, systemInstruction);
+            chatHistory.innerHTML += `<div style="text-align: left; margin: 0.5rem 0;"><span style="background-color: var(--bg-light); color: var(--text-dark); border-radius: 0.5rem; padding: 0.5rem 0.75rem; display: inline-block; max-width: 80%;">${aiResponse}</span></div>`;
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            submitButton.innerHTML = `Send`;
+            submitButton.disabled = false;
+        });
+        aiSummarizeButton.addEventListener('click', async () => {
+            const notesInput = document.getElementById('doctor-notes');
+            const outputDiv = document.getElementById('ai-summary-output');
+            const button = document.getElementById('ai-summarize-button');
+            const clinicalNotes = notesInput.value.trim();
+            if (!clinicalNotes) {
+                outputDiv.innerHTML = `<p style="color: #ef4444;">Please enter your clinical notes first.</p>`;
+                return;
+            }
+            outputDiv.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 100%;"><div class="spinner"></div><p style="margin-left: 0.5rem;">Generating summary...</p></div>`;
+            button.disabled = true; button.style.opacity = '0.5';
+            const systemInstruction = "Summarize the following clinical Ayurvedic notes into simple, clear, and encouraging language for a patient. Use bullet points and avoid overly technical jargon. Focus on the main issue, the goal, and the next steps for the patient.";
+            const summary = await callGeminiAPI(clinicalNotes, systemInstruction);
+            outputDiv.innerHTML = summary;
+            button.disabled = false; button.style.opacity = '1';
+        });
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("AyurSutra App Initialized Successfully!");
+            const savedTheme = localStorage.getItem('darkTheme') === 'true';
+            applyTheme(savedTheme);
+            
+            showView('home-view');
+            updateUI();
+            renderAll();
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('journal-date').value = today;
+
+            // Close dropdowns if clicked outside
+            window.onclick = function(event) {
+                if (!event.target.matches('.user-menu-button i')) {
+                    if (userDropdown.style.display === 'block') {
+                        userDropdown.style.display = 'none';
+                    }
+                }
+                 if (!event.target.closest('.notification-bell') && !event.target.closest('.notification-panel')) {
+                    if (notificationPanel.style.display === 'block') {
+                        notificationPanel.style.display = 'none';
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
