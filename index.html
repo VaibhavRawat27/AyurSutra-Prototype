@@ -5,15 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AyurSutra - Your Wellness Platform</title>
 
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-    <!-- Self-Contained CSS -->
     <style>
         /* --- Base & Variables --- */
         :root {
@@ -26,6 +23,7 @@
             --text-dark: #3a3a3a;
             --text-light: #6b6b6b;
             --border-color: #e5e7eb;
+            --verified-color: #059669; /* Emerald 600 */
         }
 
         body.dark {
@@ -38,6 +36,7 @@
             --text-dark: #e0e0e0;
             --text-light: #a0a0a0;
             --border-color: #333333;
+            --verified-color: #34d399; /* Emerald 400 */
         }
 
         body {
@@ -102,7 +101,7 @@
         }
 
 
-        .input-field {
+        .input-field, textarea.input-field {
             width: 100%;
             padding: 0.75rem 1rem;
             border: 1px solid var(--border-color);
@@ -111,6 +110,7 @@
             transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s;
             background-color: var(--card-bg);
             color: var(--text-dark);
+            font-family: 'Inter', sans-serif;
         }
         .input-field:focus {
             outline: none;
@@ -156,77 +156,69 @@
             justify-content: space-between;
             align-items: center;
         }
+        .logo-container { display: flex; align-items: center; gap: 0.75rem; }
         .logo { display: flex; align-items: center; gap: 0.5rem; cursor: pointer;}
         .logo-icon { font-size: 2rem; color: var(--secondary-color); }
         .logo-text { font-size: 1.75rem; font-weight: 700; color: var(--primary-color); }
+        .ehr-verified { display: flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; color: var(--verified-color); font-weight: 600; }
+        .ehr-verified i { font-size: 1.25rem; }
+        
         .nav-links { display: none; }
         .nav-links a { font-size: 1.125rem; }
         .auth-links, .user-menu { display: flex; align-items: center; gap: 1rem; }
-        .user-menu-button { width: 2.5rem; height: 2.5rem; background-color: var(--bg-light); color: var(--text-dark); border-radius: 9999px; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: background-color 0.3s; }
+        .user-menu-button { position: relative; width: 2.5rem; height: 2.5rem; background-color: var(--bg-light); color: var(--text-dark); border-radius: 9999px; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: background-color 0.3s; }
         .user-menu-button i { font-size: 1.5rem; }
-        .user-dropdown { display: none; position: absolute; right: 0; margin-top: 0.5rem; width: 12rem; background-color: var(--card-bg); border-radius: 0.375rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 20; border: 1px solid var(--border-color); }
+        .notification-dot { display:none; position: absolute; top: 0.5rem; right: 0.5rem; width: 8px; height: 8px; background-color: #ef4444; border-radius: 50%; border: 1.5px solid var(--card-bg); }
+        .notification-dot.active { display: block; }
+        
+        .user-dropdown, .notification-dropdown { display: none; position: absolute; right: 0; margin-top: 0.5rem; width: 20rem; background-color: var(--card-bg); border-radius: 0.375rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 20; border: 1px solid var(--border-color); max-height: 400px; overflow-y: auto; }
+        .user-dropdown { width: 12rem; }
         .user-dropdown a { display: block; padding: 0.5rem 1rem; font-size: 0.875rem; color: var(--text-dark); }
         .user-dropdown a:hover { background-color: var(--bg-light); }
-        
-        /* --- Notification System --- */
-        .notification-bell { position: relative; cursor: pointer; }
-        .notification-badge {
-            position: absolute;
-            top: -4px;
-            right: -4px;
-            width: 10px;
-            height: 10px;
-            background-color: #ef4444;
-            border-radius: 50%;
-            border: 2px solid var(--card-bg);
-            display: none; /* Hidden by default */
-        }
-        .notification-panel {
-            display: none;
-            position: absolute;
-            right: 0;
-            top: calc(100% + 1rem);
-            width: 22rem;
-            max-height: 400px;
-            overflow-y: auto;
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 0.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-            z-index: 60;
-        }
-        .notification-item {
-            display: flex;
-            gap: 1rem;
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
-        }
+        .notification-header { padding: 0.75rem 1rem; font-weight: 600; border-bottom: 1px solid var(--border-color); }
+        .notification-item { display: flex; gap: 0.75rem; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.875rem; }
         .notification-item:last-child { border-bottom: none; }
-        .notification-item i { font-size: 1.5rem; color: var(--secondary-color); }
-        .notification-item p { margin: 0; line-height: 1.4; }
-        .notification-item .time { font-size: 0.75rem; color: var(--text-light); }
-
+        .notification-item.unread { background-color: var(--bg-light); }
+        .notification-item i { font-size: 1.5rem; color: var(--secondary-color); margin-top: 0.25rem; }
+        .notification-time { font-size: 0.75rem; color: var(--text-light); }
+        
         /* --- Layouts & Grids --- */
         .dashboard-grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(1, 1fr); }
         .doctor-list-grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(1, 1fr); }
-        .form-grid { display: grid; gap: 1rem; }
+        .form-grid { display: grid; gap: 1rem; grid-template-columns: repeat(1, 1fr); }
         .profile-grid { display: grid; gap: 1.5rem; grid-template-columns: 1fr; }
         .role-selection-grid { display: grid; gap: 1.5rem; grid-template-columns: 1fr; }
-        .instructions-grid { display: grid; gap: 1.5rem; grid-template-columns: 1fr; }
-        .schedule-layout { display: grid; gap: 2rem; grid-template-columns: 1fr; }
-        .calendar-grid { display: grid; grid-template-columns: 60px repeat(7, 1fr); }
-        .article-grid { display: grid; gap: 1.5rem; grid-template-columns: 1fr; }
-
         
         /* --- Specific Section Styles --- */
+        .home-hero { text-align: center; }
+        .home-hero h1 { font-size: 2.5rem; font-weight: 700; color: var(--primary-color); margin-bottom: 1rem; }
+        .home-hero p { font-size: 1.25rem; color: var(--text-light); margin-bottom: 2rem; max-width: 48rem; margin-left: auto; margin-right: auto; }
+        .role-card { text-align: center; cursor: pointer;}
+        .role-card i { font-size: 4rem; color: var(--secondary-color); margin-bottom: 1rem; }
+        .role-card h3 { font-size: 1.5rem; font-weight: 600; color: var(--primary-color); }
+        
+        .auth-tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem; }
+        .tab { padding: 0.5rem 1.5rem; font-size: 1.125rem; font-weight: 600; cursor: pointer; color: #6b7280; border-bottom: 2px solid transparent; }
+        .tab-active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+        
         .page-title { font-size: 2rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--primary-color); }
         .page-subtitle { font-size: 1.125rem; color: var(--text-light); margin-top: -1rem; margin-bottom: 1.5rem; }
+
         
         .ai-chat-history { height: 20rem; overflow-y: auto; background-color: var(--bg-light); border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--border-color); }
         
         /* --- APPOINTMENT CARD --- */
         .appointment-grid { display: grid; gap: 1.5rem; grid-template-columns: 1fr; }
-        .appointment-card { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1.5rem; border: 1px solid var(--border-color); padding: 1rem; border-radius: 0.5rem; background-color: var(--card-bg); }
+        .appointment-card {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 1.5rem;
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background-color: var(--card-bg);
+        }
         .appointment-card-time { text-align: center; }
         .appointment-card-time .day { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); line-height: 1; }
         .appointment-card-time .label { font-size: 0.875rem; color: var(--text-light); }
@@ -237,32 +229,73 @@
         .detail-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
         .detail-info-card { display: flex; align-items: center; gap: 1rem; }
         .detail-info-card img { width: 5rem; height: 5rem; border-radius: 50%; border: 3px solid var(--secondary-color); }
-
-        /* --- DOSHA QUIZ --- */
-        .quiz-progress-bar-container { width: 100%; background-color: var(--border-color); border-radius: 999px; height: 10px; margin-bottom: 2rem; }
-        .quiz-progress-bar { height: 100%; width: 0%; background-color: var(--secondary-color); border-radius: 999px; transition: width 0.4s ease; }
-        .quiz-card { overflow: hidden; }
-        .quiz-question-container { transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out; }
-        .question-exit { opacity: 0; transform: translateX(-20px); }
-        .question-enter { opacity: 1; transform: translateX(0); }
-        .quiz-option { display: block; width: 100%; text-align: left; padding: 1rem; margin-bottom: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; }
-        .quiz-option:hover { background-color: var(--bg-light); border-color: var(--secondary-color); }
-        .dosha-result-card { border: 2px solid var(--secondary-color); background-color: #f0fdf4; }
-        body.dark .dosha-result-card { background-color: #1a2e1a; }
-        .dosha-result-card h3 { font-size: 2rem; color: var(--secondary-color); }
-
-        /* --- INSTRUCTIONS --- */
-        .instruction-card { display: flex; flex-direction: column; }
-        .instruction-card-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
-        .instruction-card-header i { font-size: 2.5rem; color: var(--secondary-color); }
-        .instruction-card-header h3 { font-size: 1.5rem; font-weight: 600; color: var(--primary-color); margin: 0; }
         
-        /* --- SCHEDULE CALENDAR --- */
-        .calendar-header { text-align: center; font-weight: 600; padding: 0.5rem 0; }
-        .time-label { font-size: 0.75rem; text-align: right; padding-right: 0.5rem; color: var(--text-light); }
-        .day-column { border-left: 1px solid var(--border-color); }
-        .time-slot { height: 50px; border-top: 1px solid var(--border-color); position: relative; }
-        .calendar-appointment { position: absolute; background-color: var(--secondary-color); color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; width: calc(100% - 4px); left: 2px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; cursor: pointer;}
+        /* --- Educational Feed Styles --- */
+        .feed-grid { display: grid; gap: 1.5rem; grid-template-columns: 1fr; }
+        .article-card { display: flex; gap: 1.5rem; }
+        .article-card img { width: 120px; height: 120px; object-fit: cover; border-radius: 0.5rem; }
+        .article-card-content h4 { margin: 0 0 0.5rem 0; font-size: 1.25rem; color: var(--primary-color); }
+        .article-card-content p { margin: 0; color: var(--text-light); }
+
+        /* --- Messages Styles --- */
+        .message-thread {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 1rem; border-bottom: 1px solid var(--border-color);
+            cursor: pointer; transition: background-color 0.2s;
+        }
+        .message-thread:hover { background-color: var(--bg-light); }
+        .message-thread.unread .message-subject { font-weight: 700; color: var(--text-dark); }
+        .message-icon { font-size: 2rem; color: var(--secondary-color); }
+        .message-subject { font-size: 1.1rem; }
+        .message-from { font-size: 0.9rem; color: var(--text-light); }
+        .message-indicator { width: 8px; height: 8px; background-color: var(--accent-color); border-radius: 50%; }
+
+        /* --- Contact Us Page --- */
+        .contact-grid { display: grid; gap: 2rem; grid-template-columns: 1fr; }
+        .contact-details ul { list-style: none; padding: 0; margin: 0; }
+        .contact-details li { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; font-size: 1.125rem; }
+        .contact-details li i { font-size: 1.5rem; color: var(--secondary-color); }
+
+        /* --- Manage Schedule Calendar --- */
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; text-align: center; }
+        .day-name { font-weight: 600; color: var(--text-light); font-size: 0.875rem; padding-bottom: 0.5rem; }
+        .date-cell { padding: 0.75rem 0.25rem; border: 1px solid var(--border-color); border-radius: 0.375rem; }
+        .date-cell.other-month { color: var(--text-light); opacity: 0.5; }
+        .date-cell.current-day { background-color: var(--secondary-color); color: white; font-weight: 700; }
+        .schedule-form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 1rem; align-items: end; }
+
+        /* --- Patient Feedback --- */
+        .feedback-item { border-bottom: 1px solid var(--border-color); padding: 1rem 0; }
+        .feedback-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .feedback-item:first-child { padding-top: 0; }
+        .feedback-quote { font-style: italic; color: var(--text-dark); }
+        .feedback-author { text-align: right; font-weight: 600; color: var(--primary-color); }
+        .stars { color: var(--accent-color); }
+
+        /* --- NEW: Interactive Quiz Styles --- */
+        #quiz-progress-container { width: 100%; background-color: var(--border-color); border-radius: 0.5rem; height: 1rem; margin-bottom: 2rem; overflow: hidden; }
+        #quiz-progress-bar { width: 0%; height: 100%; background-color: var(--secondary-color); transition: width 0.4s ease-in-out; }
+        #quiz-question-container { min-height: 250px; transition: opacity 0.3s ease-in-out; }
+        .quiz-question-text { font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--primary-color); text-align: center; }
+        .quiz-options { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+        .quiz-options label {
+            display: block;
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quiz-options label:hover { border-color: var(--secondary-color); background-color: var(--bg-light); }
+        .quiz-options input[type="radio"] { display: none; }
+        .quiz-options input[type="radio"]:checked + label {
+            background-color: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+            font-weight: 600;
+        }
+        #quiz-result-card { text-align: center; }
+        #quiz-result-card i { font-size: 5rem; color: var(--secondary-color); margin-bottom: 1rem; }
 
         /* --- Responsive Design --- */
         @media (min-width: 768px) { /* md */
@@ -274,31 +307,34 @@
             .role-selection-grid { grid-template-columns: repeat(3, 1fr); }
             .detail-grid { grid-template-columns: 2fr 1fr; }
             .appointment-grid { grid-template-columns: repeat(2, 1fr); }
-            .instructions-grid { grid-template-columns: repeat(2, 1fr); }
-            .schedule-layout { grid-template-columns: 3fr 1fr; }
-            .article-grid { grid-template-columns: repeat(2, 1fr); }
             .home-hero h1 { font-size: 3rem; }
+            .contact-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (min-width: 1024px) { /* lg */
             .dashboard-grid { grid-template-columns: repeat(4, 1fr); }
             .doctor-list-grid { grid-template-columns: repeat(3, 1fr); }
-            .article-grid { grid-template-columns: repeat(3, 1fr); }
+            .feed-grid { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
 <body>
 
-    <!-- =========== HEADER / NAVBAR =========== -->
     <header class="header">
         <nav class="container navbar">
-            <div class="logo" onclick="goHome()">
-                <i class="ph-bold ph-leaf logo-icon"></i>
-                <span class="logo-text">AyurSutra</span>
+            <div class="logo-container">
+                <div class="logo" onclick="goHome()">
+                    <i class="ph-bold ph-leaf logo-icon"></i>
+                    <span class="logo-text">AyurSutra</span>
+                </div>
+                <div class="ehr-verified" title="EHR Compliant and Verified Platform">
+                    <i class="ph-fill ph-seal-check"></i>
+                    <span>EHR<br>Verified</span>
+                </div>
             </div>
             <div id="main-nav-links" class="nav-links">
                 <a href="#" onclick="showView('find-doctor-view')">Find a Doctor</a>
-                <a href="#" onclick="showView('dosha-quiz-view')">Know Your Dosha</a>
-                <a href="#" onclick="showView('educational-feed-view')">Learn</a>
+                <a href="#" onclick="startQuiz()">Know Your Dosha</a>
+                <a href="#" onclick="showView('contact-us-view')">Contact Us</a>
             </div>
             <div id="auth-links" class="auth-links">
                 <div class="theme-switch-wrapper">
@@ -320,13 +356,17 @@
                     </label>
                     <i class="ph ph-moon"></i>
                 </div>
-                <div class="notification-bell" onclick="toggleNotificationPanel()">
-                    <i class="ph ph-bell" style="font-size: 1.5rem;"></i>
-                    <span id="notification-badge" class="notification-badge"></span>
-                </div>
                 <span id="welcome-message" style="font-weight: 600;"></span>
                 <div style="position: relative;">
-                    <button onclick="toggleDropdown()" class="user-menu-button">
+                    <button class="user-menu-button" title="Notifications" onclick="toggleNotifications()">
+                        <i class="ph ph-bell"></i>
+                        <span id="notification-dot" class="notification-dot"></span>
+                    </button>
+                    <div id="notification-dropdown" class="notification-dropdown">
+                         </div>
+                </div>
+                <div style="position: relative;">
+                    <button onclick="toggleDropdown()" class="user-menu-button" title="User Menu">
                         <i class="ph ph-user"></i>
                     </button>
                     <div id="user-dropdown" class="user-dropdown">
@@ -335,17 +375,12 @@
                         <a href="#" onclick="logout()">Logout</a>
                     </div>
                 </div>
-                <!-- Notification Panel -->
-                <div id="notification-panel" class="notification-panel">
-                    <!-- Notifications will be rendered here by JS -->
-                </div>
             </div>
         </nav>
     </header>
 
     <main class="container">
 
-        <!-- =========== HOME VIEW (ROLE SELECTION) =========== -->
         <section id="home-view" class="view active-view">
             <div class="home-hero">
                 <h1 >Welcome to AyurSutra</h1>
@@ -370,7 +405,6 @@
             </div>
         </section>
 
-        <!-- =========== AUTHENTICATION VIEW =========== -->
         <section id="auth-view" class="view" style="max-width: 28rem; margin: auto;">
             <div class="card non-interactive">
                 <div class="auth-tabs">
@@ -401,7 +435,6 @@
             </div>
         </section>
 
-        <!-- =========== FORGOT PASSWORD VIEW =========== -->
         <section id="forgot-password-view" class="view" style="max-width: 28rem; margin: auto;">
             <div class="card non-interactive">
                 <h2 class="page-title" style="font-size:1.5rem; text-align:center; margin-bottom: 0.5rem;">Reset Password</h2>
@@ -416,41 +449,125 @@
                 </form>
             </div>
         </section>
+        
+        <section id="contact-us-view" class="view">
+            <h2 class="page-title">Contact Us</h2>
+            <p class="page-subtitle">We're here to help. Reach out to us with any questions.</p>
+            <div class="contact-grid">
+                <div class="card non-interactive">
+                    <h3 style="font-size: 1.5rem; font-weight: 600; color: var(--primary-color); margin-top: 0; margin-bottom: 1.5rem;">Get in Touch</h3>
+                    <div class="contact-details">
+                        <ul>
+                            <li><i class="ph-fill ph-phone-call"></i> <span>+91 98765 43210</span></li>
+                            <li><i class="ph-fill ph-envelope-simple"></i> <span>support@ayursutra.com</span></li>
+                            <li><i class="ph-fill ph-map-pin"></i> <span>123 Wellness Lane, Sector 17,<br>Chandigarh, 160017, India</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card non-interactive">
+                    <h3 style="font-size: 1.5rem; font-weight: 600; color: var(--primary-color); margin-top: 0; margin-bottom: 1.5rem;">Send a Message</h3>
+                     <form id="contact-form">
+                        <div style="margin-bottom: 1rem;">
+                            <label for="contact-name" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Full Name</label>
+                            <input type="text" id="contact-name" class="input-field" required>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label for="contact-email" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Email</label>
+                            <input type="email" id="contact-email" class="input-field" required>
+                        </div>
+                        <div style="margin-bottom: 1.5rem;">
+                            <label for="contact-message" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Message</label>
+                            <textarea id="contact-message" class="input-field" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </section>
 
-        <!-- =========== CUSTOMER DASHBOARD VIEW =========== -->
         <section id="customer-dashboard-view" class="view">
             <h2 class="page-title">Customer Dashboard</h2>
             <div class="card non-interactive" style="margin-bottom: 2.5rem;">
                 <h3 class="page-title" style="font-size:1.5rem; margin-bottom:1rem;">Upcoming Appointments</h3>
                 <div id="customer-appointments" class="appointment-grid"></div>
             </div>
-            <div class="dashboard-grid" style="grid-template-columns: repeat(1, 1fr);">
-                <div class="card"><i class="ph ph-first-aid-kit" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Doctor's Instructions</h3><p style="color: var(--text-light); margin-bottom: 1rem;">View your latest personalized plan.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('doctor-instructions-view')">View Instructions</button></div>
-                <div class="card"><i class="ph ph-chat-dots" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Messages</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Chat with your healthcare providers.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('chat-view')">Open Messages</button></div>
+            <div class="dashboard-grid">
                 <div class="card"><i class="ph ph-calendar-plus" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Book an Appointment</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Find expert Ayurvedic doctors.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('find-doctor-view')">Find a Doctor</button></div>
+                <div class="card"><i class="ph ph-first-aid-kit" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Doctor's Instructions</h3><p style="color: var(--text-light); margin-bottom: 1rem;">View your prescribed therapies.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('treatment-plan-view')">View Plan</button></div>
                 <div class="card"><i class="ph ph-notebook" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Wellness Journal</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Track your diet, mood, and symptoms.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('journal-view')">Open Journal</button></div>
-                <div class="card" style="background-color: #f0fdf4; border: 2px dashed var(--secondary-color);"><i class="ph ph-sparkle" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">AI Wellness Assistant</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Ask general wellness questions.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('ai-wellness-view')">Ask AI</button></div>
+                <div class="card"><i class="ph ph-chart-line" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Progress Tracker</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Visualize your wellness journey.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('progress-tracker-view')">View Progress</button></div>
+                <div class="card"><i class="ph ph-book-open-text" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Educational Feed</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Read articles about wellness.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('educational-feed-view')">View Feed</button></div>
+                <div class="card"><i class="ph ph-chat-circle-dots" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Messages</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Check for updates from your doctor.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('messages-view')">Open Messages</button></div>
+                <div class="card" style="grid-column: span 1 / span 1;"><i class="ph ph-sparkle" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">AI Wellness Assistant</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Ask general wellness questions.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('ai-wellness-view')">Ask AI</button></div>
             </div>
         </section>
 
-        <!-- =========== DOCTOR DASHBOARD VIEW =========== -->
         <section id="doctor-dashboard-view" class="view">
              <h2 class="page-title">Doctor Dashboard</h2>
-              <div class="card non-interactive" style="margin-bottom: 2.5rem;">
-                <h3 class="page-title" style="font-size:1.5rem; margin-bottom:1rem;">Today's Appointments</h3>
-                <div id="doctor-appointments" class="appointment-grid"></div>
-             </div>
+                 <div class="card non-interactive" style="margin-bottom: 2.5rem;">
+                 <h3 class="page-title" style="font-size:1.5rem; margin-bottom:1rem;">Today's Appointments</h3>
+                 <div id="doctor-appointments" class="appointment-grid"></div>
+               </div>
              <div class="dashboard-grid">
-                 <div class="card"><i class="ph ph-calendar" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Manage Schedule</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Set your availability.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('schedule-management-view')">Open Calendar</button></div>
-                 <div class="card"><i class="ph ph-chat-dots" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Messages</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Chat with your patients.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('chat-view')">Open Messages</button></div>
-                 <div class="card"><i class="ph ph-users-three" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">My Patients</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Access patient history.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('patient-list-view')">View Patients</button></div>
-                 <div class="card"><i class="ph ph-star" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Patient Feedback</h3><p style="color: var(--text-light); margin-bottom: 1rem;">See your latest reviews.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('doctor-reviews-view')">View Reviews</button></div>
-                 <div class="card"><i class="ph ph-wallet" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Earnings</h3><p style="color: var(--text-light); margin-bottom: 1rem;">View your financial overview.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('earnings-view')">My Earnings</button></div>
-                 <div class="card" style="background-color: #f0fdf4; border: 2px dashed var(--secondary-color);"><i class="ph ph-magic-wand" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">AI Summarizer</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Generate patient-friendly summaries.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('ai-summarizer-view')">Use AI Tool</button></div>
+                 <div class="card"><i class="ph ph-calendar" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Manage Schedule</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Set your availability.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('manage-schedule-view')">Open Calendar</button></div>
+                   <div class="card"><i class="ph ph-users-three" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">My Patients</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Access patient history.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('patient-list-view')">View Patients</button></div>
+                   <div class="card"><i class="ph ph-wallet" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Earnings</h3><p style="color: var(--text-light); margin-bottom: 1rem;">View your financial overview.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('earnings-view')">My Earnings</button></div>
+                   <div class="card" style="background-color: #f0fdf4; border: 2px dashed var(--secondary-color);"><i class="ph ph-magic-wand" style="font-size: 2.5rem; color: var(--secondary-color); margin-bottom: 0.75rem; display:block;"></i><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">AI Summarizer</h3><p style="color: var(--text-light); margin-bottom: 1rem;">Generate patient-friendly summaries.</p><button class="btn btn-secondary" style="width: 100%;" onclick="showView('ai-summarizer-view')">Use AI Tool</button></div>
+             </div>
+             <div class="card non-interactive" style="margin-top: 2.5rem;">
+                <h3 class="page-title" style="font-size:1.5rem; margin-bottom:1rem;">Recent Patient Feedback</h3>
+                <div id="patient-feedback-container">
+                    <div class="feedback-item">
+                        <p class="feedback-quote">"Very satisfied with the treatment plan. I'm already feeling more energetic and balanced."</p>
+                        <p class="feedback-author">~ Rohan V. <span class="stars">★★★★★</span></p>
+                    </div>
+                    <div class="feedback-item">
+                        <p class="feedback-quote">"The doctor was very attentive and caring. She listened to all my concerns patiently and explained everything clearly."</p>
+                        <p class="feedback-author">~ Sunita K. <span class="stars">★★★★★</span></p>
+                    </div>
+                     <div class="feedback-item">
+                        <p class="feedback-quote">"A truly holistic approach. I appreciate how the focus is on overall wellness, not just symptoms."</p>
+                        <p class="feedback-author">~ Ankit P. <span class="stars">★★★★☆</span></p>
+                    </div>
+                </div>
              </div>
         </section>
+        
+        <section id="manage-schedule-view" class="view">
+            <h2 class="page-title">Manage Your Schedule</h2>
+            <p class="page-subtitle">Set your availability so patients can book appointments.</p>
+            <div class="card non-interactive" style="margin-bottom: 2rem;">
+                <h3 style="text-align:center; font-size: 1.5rem; color: var(--primary-color); margin-top:0;">September 2025</h3>
+                <div class="calendar-grid">
+                    <div class="day-name">Sun</div><div class="day-name">Mon</div><div class="day-name">Tue</div><div class="day-name">Wed</div><div class="day-name">Thu</div><div class="day-name">Fri</div><div class="day-name">Sat</div>
+                    <div class="date-cell other-month">31</div>
+                    <div class="date-cell">1</div><div class="date-cell">2</div><div class="date-cell">3</div><div class="date-cell">4</div><div class="date-cell">5</div><div class="date-cell">6</div>
+                    <div class="date-cell">7</div><div class="date-cell">8</div><div class="date-cell">9</div><div class="date-cell">10</div><div class="date-cell">11</div><div class="date-cell">12</div><div class="date-cell">13</div>
+                    <div class="date-cell">14</div><div class="date-cell">15</div><div class="date-cell current-day">16</div><div class="date-cell">17</div><div class="date-cell">18</div><div class="date-cell">19</div><div class="date-cell">20</div>
+                    <div class="date-cell">21</div><div class="date-cell">22</div><div class="date-cell">23</div><div class="date-cell">24</div><div class="date-cell">25</div><div class="date-cell">26</div><div class="date-cell">27</div>
+                    <div class="date-cell">28</div><div class="date-cell">29</div><div class="date-cell">30</div><div class="date-cell other-month">1</div><div class="date-cell other-month">2</div><div class="date-cell other-month">3</div><div class="date-cell other-month">4</div>
+                </div>
+            </div>
+             <div class="card non-interactive">
+                <h3 style="font-size: 1.5rem; color: var(--primary-color); margin-top:0;">Add New Availability Slot</h3>
+                <form id="schedule-form" class="schedule-form-grid">
+                    <div>
+                        <label style="display:block; margin-bottom: 0.5rem; font-weight: 500;">Date</label>
+                        <input type="date" class="input-field" value="2025-09-17">
+                    </div>
+                    <div>
+                        <label style="display:block; margin-bottom: 0.5rem; font-weight: 500;">Start Time</label>
+                        <input type="time" class="input-field" value="09:00">
+                    </div>
+                     <div>
+                        <label style="display:block; margin-bottom: 0.5rem; font-weight: 500;">End Time</label>
+                        <input type="time" class="input-field" value="17:00">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Set Availability</button>
+                </form>
+            </div>
+        </section>
 
-        <!-- =========== ADMIN DASHBOARD VIEW =========== -->
         <section id="admin-dashboard-view" class="view">
             <h2 class="page-title">Admin Panel</h2>
             <div class="dashboard-grid" style="margin-bottom: 2rem;">
@@ -470,21 +587,14 @@
             </div>
         </section>
 
-        <!-- ================================================== -->
-        <!-- =========== DETAILED FEATURE VIEWS START =========== -->
-        <!-- ================================================== -->
-        
-        <!-- =========== APPOINTMENT DETAIL VIEW =========== -->
         <section id="appointment-detail-view" class="view">
             <button class="btn btn-secondary" style="margin-bottom: 1.5rem;" onclick="showDashboard()">&larr; Back to Dashboard</button>
             <h2 id="ad-title" class="page-title">Appointment Details</h2>
             <div class="detail-grid">
-                <!-- Left Column -->
                 <div>
                     <div class="card non-interactive" style="margin-bottom: 1.5rem;">
                         <div id="ad-header-info" class="detail-info-card">
-                            <!-- Populated by JS -->
-                        </div>
+                            </div>
                     </div>
                     <div class="card non-interactive">
                         <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--primary-color); margin-bottom: 1rem;">Details</h3>
@@ -495,30 +605,27 @@
                         <p><strong>Status:</strong> <span id="ad-status" style="font-weight: bold; color: var(--secondary-color);"></span></p>
                     </div>
                 </div>
-                <!-- Right Column -->
                 <div>
                     <div class="card non-interactive" style="text-align: center; margin-bottom: 1.5rem;">
-                         <p style="font-size: 3rem; font-weight: 700; color: var(--primary-color);" id="ad-countdown-days">--</p>
-                         <p style="color: var(--text-light); margin-top: -0.5rem;" id="ad-countdown-label">Days to go</p>
+                          <p style="font-size: 3rem; font-weight: 700; color: var(--primary-color);" id="ad-countdown-days">--</p>
+                          <p style="color: var(--text-light); margin-top: -0.5rem;" id="ad-countdown-label">Days to go</p>
                     </div>
                      <div class="card non-interactive">
-                         <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--primary-color); margin-bottom: 1rem;">Payment</h3>
-                         <p style="display: flex; justify-content: space-between;"><span>Service Fee</span> <strong id="ad-price"></strong></p>
-                         <hr style="border: none; border-top: 1px solid var(--border-color); margin: 1rem 0;">
-                         <p style="display: flex; justify-content: space-between; font-weight: bold;"><span>Total</span> <span id="ad-total-price"></span></p>
+                          <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--primary-color); margin-bottom: 1rem;">Payment</h3>
+                          <p style="display: flex; justify-content: space-between;"><span>Service Fee</span> <strong id="ad-price"></strong></p>
+                          <hr style="border: none; border-top: 1px solid var(--border-color); margin: 1rem 0;">
+                          <p style="display: flex; justify-content: space-between; font-weight: bold;"><span>Total</span> <span id="ad-total-price"></span></p>
                      </div>
                      <div id="ad-action-buttons" style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
-                        <!-- Action buttons populated by JS -->
-                     </div>
+                         </div>
                 </div>
             </div>
         </section>
 
-        <!-- =========== FIND A DOCTOR VIEW =========== -->
         <section id="find-doctor-view" class="view">
              <h2 class="page-title" style="margin-bottom: 0.5rem;">Find a Doctor</h2>
              <p class="page-subtitle">Search for a specialist that fits your needs.</p>
-             <div class="card non-interactive form-grid" style="margin-bottom: 2rem; align-items: end; grid-template-columns: repeat(1, 1fr);">
+             <div class="card non-interactive form-grid" style="margin-bottom: 2rem; align-items: end;">
                  <input type="text" placeholder="Location (e.g., Chandigarh)" class="input-field">
                  <select class="input-field"><option>Any Specialization</option><option>Panchakarma</option><option>Kayachikitsa</option></select>
                  <select class="input-field"><option>Any Rating</option><option>4 Stars & Up</option><option>3 Stars & Up</option></select>
@@ -527,99 +634,24 @@
              <div id="doctor-list-container" class="doctor-list-grid"></div>
         </section>
         
-        <!-- =========== DOSHA QUIZ VIEW (GAMIFIED) =========== -->
         <section id="dosha-quiz-view" class="view" style="max-width: 42rem; margin: auto;">
-             <div id="quiz-container" class="card non-interactive quiz-card">
-                <div id="quiz-start-screen">
-                    <div style="text-align: center;">
-                        <i class="ph-sparkle" style="font-size: 4rem; color: var(--accent-color); margin-bottom: 1rem;"></i>
-                        <h2 class="page-title" style="margin-bottom: 0.5rem;">Discover Your Dosha</h2>
-                        <p class="page-subtitle">Answer 5 quick questions to find your unique mind-body type.</p>
-                        <button class="btn btn-primary" onclick="startDoshaQuiz()">Start the Quiz</button>
-                    </div>
-                </div>
-                <div id="quiz-question-screen" style="display: none;">
-                    <div class="quiz-progress-bar-container">
-                        <div id="quiz-progress-bar" class="quiz-progress-bar"></div>
+             <div class="card non-interactive" style="text-align: center;">
+                 <h2 class="page-title" style="margin-bottom: 0.5rem;">Discover Your Dosha</h2>
+                 <p class="page-subtitle">Answer the questions to understand your unique mind-body constitution.</p>
+                 
+                 <div id="quiz-container">
+                    <div id="quiz-progress-container">
+                        <div id="quiz-progress-bar"></div>
                     </div>
                     <div id="quiz-question-container">
-                        <!-- Question content will be injected here -->
+                        </div>
+                 </div>
+
+                 <div id="quiz-result" style="display: none;">
                     </div>
-                </div>
-                <div id="quiz-result-screen" style="display: none;">
-                     <!-- Result content will be injected here -->
-                </div>
              </div>
         </section>
 
-        <!-- =========== DOCTOR'S INSTRUCTIONS VIEW =========== -->
-        <section id="doctor-instructions-view" class="view">
-            <h2 class="page-title">Doctor's Instructions</h2>
-            <p class="page-subtitle">Personalized plan from Dr. Anjali Sharma, updated 1 day ago.</p>
-            <div class="instructions-grid">
-                <!-- Diet Card -->
-                <div class="card non-interactive instruction-card">
-                    <div class="instruction-card-header">
-                        <i class="ph-fill ph-bowl-food"></i>
-                        <h3>Dietary Plan</h3>
-                    </div>
-                    <ul>
-                        <li>Favor warm, cooked, and slightly oily foods.</li>
-                        <li>Incorporate sweet, sour, and salty tastes.</li>
-                        <li>Reduce intake of cold, dry, and light foods.</li>
-                        <li>Sip warm ginger tea throughout the day.</li>
-                    </ul>
-                </div>
-                <!-- Exercise Card -->
-                <div class="card non-interactive instruction-card">
-                    <div class="instruction-card-header">
-                        <i class="ph-fill ph-heartbeat"></i>
-                        <h3>Exercise & Yoga</h3>
-                    </div>
-                    <ul>
-                        <li>Practice grounding yoga poses like Warrior II and Mountain Pose.</li>
-                        <li>Avoid high-intensity workouts; opt for gentle walks or Tai Chi.</li>
-                        <li>Focus on deep, slow breathing (pranayama).</li>
-                    </ul>
-                </div>
-                 <!-- Medicine Card -->
-                <div class="card non-interactive instruction-card">
-                    <div class="instruction-card-header">
-                        <i class="ph-fill ph-pill"></i>
-                        <h3>Medicines</h3>
-                    </div>
-                    <ul>
-                        <li><strong>Ashwagandha Churna:</strong> 1 tsp with warm milk before bed.</li>
-                        <li><strong>Triphala Guggulu:</strong> 2 tablets after lunch.</li>
-                    </ul>
-                </div>
-                <!-- Lifestyle Card -->
-                <div class="card non-interactive instruction-card">
-                    <div class="instruction-card-header">
-                        <i class="ph-fill ph-bed"></i>
-                        <h3>Lifestyle</h3>
-                    </div>
-                    <ul>
-                        <li>Maintain a regular daily routine (Dinacharya).</li>
-                        <li>Practice daily self-massage (Abhyanga) with warm sesame oil.</li>
-                        <li>Ensure you go to sleep by 10 PM.</li>
-                    </ul>
-                </div>
-                <!-- Attachments Card -->
-                <div class="card non-interactive instruction-card">
-                    <div class="instruction-card-header">
-                        <i class="ph-fill ph-paperclip"></i>
-                        <h3>Attachments</h3>
-                    </div>
-                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                        <a href="#" class="btn btn-sm btn-secondary" style="display:inline-flex; align-items:center; gap:0.5rem;"><i class="ph ph-file-pdf"></i> Diet_Plan.pdf</a>
-                        <a href="#" class="btn btn-sm btn-secondary" style="display:inline-flex; align-items:center; gap:0.5rem;"><i class="ph ph-video-camera"></i> Yoga_Intro.mp4</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- =========== AI WELLNESS ASSISTANT VIEW =========== -->
         <section id="ai-wellness-view" class="view" style="max-width: 42rem; margin: auto;">
             <div class="card non-interactive">
                 <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
@@ -640,7 +672,6 @@
             </div>
         </section>
 
-        <!-- =========== AI TREATMENT SUMMARIZER VIEW =========== -->
         <section id="ai-summarizer-view" class="view" style="max-width: 48rem; margin: auto;">
             <div class="card non-interactive">
                  <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
@@ -666,7 +697,6 @@
             </div>
         </section>
 
-        <!-- =========== PROFILE VIEW (ALL ROLES) =========== -->
         <section id="profile-view" class="view">
             <h2 class="page-title">My Profile</h2>
             <div class="card non-interactive profile-grid">
@@ -684,7 +714,6 @@
                             <label for="profile-email" style="display: block; font-weight: 500; margin-bottom: 0.5rem;">Email Address</label>
                             <input type="email" id="profile-email" class="input-field" value="customer@ayur.com" readonly>
                         </div>
-                        <!-- Role-specific fields will be shown here -->
                         <div id="role-specific-profile-fields"></div>
                         <button type="submit" class="btn btn-primary">Save Changes</button>
                     </form>
@@ -692,94 +721,68 @@
             </div>
         </section>
 
-        <!-- =========== SCHEDULE MANAGEMENT (DOCTOR) =========== -->
-        <section id="schedule-management-view" class="view">
-            <h2 class="page-title">Manage Schedule</h2>
-            <div class="schedule-layout">
-                <div class="card non-interactive" style="overflow-x: auto;">
-                    <h3 style="margin-top:0; font-size: 1.5rem; color: var(--primary-color);">This Week's Calendar</h3>
-                    <div id="calendar-grid" class="calendar-grid">
-                        <!-- Calendar will be rendered by JS -->
-                    </div>
+        <section id="treatment-plan-view" class="view">
+            <h2 class="page-title">Doctor's Instructions</h2>
+            <p class="page-subtitle">Your comprehensive wellness plan from Dr. Anjali Sharma (updated Sep 15, 2025)</p>
+            <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
+                <div class="card non-interactive">
+                    <h3 style="font-size: 1.5rem; font-weight: 600; color: var(--primary-color); margin-bottom: 1rem;">Dietary Plan</h3>
+                    <ul style="list-style-position: inside; margin: 0; padding: 0;">
+                        <li>Avoid cold, spicy, and fried foods.</li>
+                        <li>Favor warm, cooked meals like kitchari and vegetable soups.</li>
+                        <li>Drink warm ginger tea throughout the day to aid digestion.</li>
+                        <li>Eat your largest meal at lunchtime when digestive fire is strongest.</li>
+                    </ul>
                 </div>
                 <div class="card non-interactive">
-                     <h3 style="margin-top:0; font-size: 1.5rem; color: var(--primary-color);">Set Availability</h3>
-                     <form id="availability-form">
-                        <div style="margin-bottom: 1rem;">
-                            <label for="av-date" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Date</label>
-                            <input type="date" id="av-date" class="input-field" required>
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <label for="av-start-time" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Start Time</label>
-                            <input type="time" id="av-start-time" class="input-field" required>
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <label for="av-end-time" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">End Time</label>
-                            <input type="time" id="av-end-time" class="input-field" required>
-                        </div>
-                         <div style="margin-bottom: 1.5rem;">
-                            <label for="av-type" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Type</label>
-                            <select id="av-type" class="input-field">
-                                <option value="available">Available</option>
-                                <option value="unavailable">Unavailable / Block</option>
-                            </select>
-                        </div>
-                        <button class="btn btn-primary" type="submit">Update Schedule</button>
-                     </form>
+                    <h3 style="font-size: 1.5rem; font-weight: 600; color: var(--primary-color); margin-bottom: 1rem;">Exercise & Yoga</h3>
+                    <ul style="list-style-position: inside; margin: 0; padding: 0;">
+                        <li>Practice gentle yoga or stretching for 20 minutes daily. (Focus on twists and forward folds).</li>
+                        <li>Take a calm, 15-minute walk after dinner.</li>
+                        <li>Recommended Asanas: Pawanmuktasana (Wind-Relieving Pose), Marjaryasana-Bitilasana (Cat-Cow Pose).</li>
+                    </ul>
+                </div>
+                <div class="card non-interactive">
+                    <h3 style="font-size: 1.5rem; font-weight: 600; color: var(--primary-color); margin-bottom: 1rem;">Medicines</h3>
+                    <ul style="list-style-position: inside; margin: 0; padding: 0;">
+                        <li><strong>Trikatu Churna:</strong> 1/2 tsp with warm water before meals (twice a day).</li>
+                        <li><strong>Hingwashtak Churna:</strong> 1/2 tsp mixed with the first bite of your meal.</li>
+                    </ul>
+                </div>
+                <div class="card non-interactive">
+                    <h3 style="font-size: 1.5rem; font-weight: 600; color: var(--primary-color); margin-bottom: 1rem;">Lifestyle</h3>
+                     <ul style="list-style-position: inside; margin: 0; padding: 0;">
+                        <li>Go to bed by 10 PM and wake up by 6 AM to sync with natural rhythms.</li>
+                        <li>Perform a daily self-massage (abhyanga) with warm sesame oil before bathing.</li>
+                        <li>Practice 5 minutes of deep belly breathing (diaphragmatic breathing) upon waking.</li>
+                    </ul>
+                </div>
+                <div class="card non-interactive">
+                    <h3 style="font-size: 1.5rem; font-weight: 600; color: var(--primary-color); margin-bottom: 1rem;">Attachments</h3>
+                    <a href="#" style="display: flex; align-items: center; gap: 0.5rem;"><i class="ph ph-file-pdf"></i> Detailed_Diet_Chart.pdf</a>
                 </div>
             </div>
         </section>
-        
-        <!-- =========== DOCTOR REVIEWS VIEW =========== -->
-        <section id="doctor-reviews-view" class="view">
-            <h2 class="page-title">Patient Feedback</h2>
-            <div id="reviews-container" style="display: grid; gap: 1.5rem; grid-template-columns: 1fr;">
-                <!-- Reviews will be rendered by JS -->
-            </div>
-        </section>
 
-        <!-- =========== CHAT VIEW =========== -->
-        <section id="chat-view" class="view">
-             <h2 class="page-title">Messages</h2>
-             <div class="card non-interactive" style="display: grid; grid-template-columns: 1fr; height: 70vh;">
-                <!-- This would be a more complex component in a real app -->
-                <div style="border: 1px solid var(--border-color); border-radius: 0.5rem; display:flex; align-items:center; justify-content:center; flex-direction:column; text-align:center;">
-                    <i class="ph-fill ph-chat-dots" style="font-size: 4rem; color: var(--secondary-color);"></i>
-                    <h3 style="font-size: 1.5rem; margin-top: 1rem; color: var(--primary-color);">In-App Messaging</h3>
-                    <p style="color: var(--text-light); max-width: 25rem;">This is a placeholder for the full chat interface. In a real application, you'd see a list of conversations and the active chat window here.</p>
-                </div>
-             </div>
-        </section>
-
-        <!-- =========== EDUCATIONAL FEED VIEW =========== -->
-        <section id="educational-feed-view" class="view">
-             <h2 class="page-title">Learn & Discover</h2>
-             <p class="page-subtitle">Explore articles on Ayurvedic wisdom, healthy recipes, and wellness tips.</p>
-             <div id="article-grid" class="article-grid">
-                <!-- Articles will be rendered by JS -->
-             </div>
-        </section>
-
-         <!-- =========== JOURNAL & PROGRESS VIEW (CUSTOMER) =========== -->
-        <section id="journal-view" class="view">
-             <h2 class="page-title">Wellness Journal</h2>
-             <div class="card non-interactive">
-                 <form id="journal-form">
-                     <div style="margin-bottom: 1rem;">
-                        <label for="journal-date" style="display: block; font-weight: 500; margin-bottom: 0.5rem;">Date</label>
-                        <input type="date" id="journal-date" class="input-field">
-                     </div>
-                     <div style="margin-bottom: 1rem;">
-                        <label for="journal-mood" style="display: block; font-weight: 500; margin-bottom: 0.5rem;">How are you feeling today? (1-5)</label>
-                        <input type="range" id="journal-mood" class="input-field" min="1" max="5">
-                     </div>
-                      <div style="margin-bottom: 1.5rem;">
-                        <label for="journal-notes" style="display: block; font-weight: 500; margin-bottom: 0.5rem;">Notes (Symptoms, Diet, etc.)</label>
-                        <textarea id="journal-notes" rows="4" class="input-field"></textarea>
-                     </div>
-                     <button type="submit" class="btn btn-primary">Add Entry</button>
-                 </form>
-             </div>
+         <section id="journal-view" class="view">
+              <h2 class="page-title">Wellness Journal</h2>
+              <div class="card non-interactive">
+                  <form id="journal-form">
+                      <div style="margin-bottom: 1rem;">
+                          <label for="journal-date" style="display: block; font-weight: 500; margin-bottom: 0.5rem;">Date</label>
+                          <input type="date" id="journal-date" class="input-field">
+                      </div>
+                      <div style="margin-bottom: 1rem;">
+                          <label for="journal-mood" style="display: block; font-weight: 500; margin-bottom: 0.5rem;">How are you feeling today? (1-5)</label>
+                          <input type="range" id="journal-mood" class="input-field" min="1" max="5">
+                      </div>
+                       <div style="margin-bottom: 1.5rem;">
+                          <label for="journal-notes" style="display: block; font-weight: 500; margin-bottom: 0.5rem;">Notes (Symptoms, Diet, etc.)</label>
+                          <textarea id="journal-notes" rows="4" class="input-field"></textarea>
+                      </div>
+                      <button type="submit" class="btn btn-primary">Add Entry</button>
+                  </form>
+              </div>
         </section>
 
         <section id="progress-tracker-view" class="view">
@@ -787,7 +790,6 @@
             <div class="card non-interactive">
                 <h3 style="font-size: 1.5rem; font-weight: 600; color: var(--primary-color); margin-bottom: 1.5rem;">Mood Over Time</h3>
                 <div style="display: flex; justify-content: space-around; align-items: flex-end; height: 200px; border-left: 2px solid var(--border-color); border-bottom: 2px solid var(--border-color); padding-left: 1rem;">
-                    <!-- Mock Chart Bars -->
                     <div style="width: 15%; background-color: var(--secondary-color); height: 60%;" title="Day 1: 3/5"></div>
                     <div style="width: 15%; background-color: var(--secondary-color); height: 80%;" title="Day 2: 4/5"></div>
                     <div style="width: 15%; background-color: var(--secondary-color); height: 70%;" title="Day 3: 3.5/5"></div>
@@ -797,18 +799,39 @@
             </div>
         </section>
 
-        <!-- =========== PATIENT LIST (DOCTOR) =========== -->
+        <section id="educational-feed-view" class="view">
+            <h2 class="page-title">Educational Feed</h2>
+            <p class="page-subtitle">Curated articles to support your wellness journey.</p>
+            <div id="educational-feed-container" class="feed-grid">
+                </div>
+        </section>
+
+        <section id="messages-view" class="view">
+            <h2 class="page-title">Messages</h2>
+            <p class="page-subtitle">A record of all communication with your healthcare providers.</p>
+            <div id="messages-container" class="card non-interactive" style="padding: 0;">
+                </div>
+        </section>
+        
         <section id="patient-list-view" class="view">
             <h2 class="page-title">My Patients</h2>
             <div class="card non-interactive">
-                <table id="patient-table">
-                    <thead><tr><th>Name</th><th>Last Visit</th><th>Primary Dosha</th><th>Actions</th></tr></thead>
+                <table id="patient-table" style="width: 100%; text-align: left; border-collapse: collapse;">
+                    <thead style="border-bottom: 2px solid var(--border-color);">
+                        <tr>
+                            <th style="padding: 0.5rem;">Name</th>
+                            <th style="padding: 0.5rem;">Age</th>
+                            <th style="padding: 0.5rem;">Gender</th>
+                            <th style="padding: 0.5rem;">Previous Consultations</th>
+                            <th style="padding: 0.5rem;">Ongoing Therapy</th>
+                            <th style="padding: 0.5rem;">Actions</th>
+                        </tr>
+                    </thead>
                     <tbody></tbody>
                 </table>
             </div>
         </section>
 
-        <!-- =========== EARNINGS (DOCTOR) =========== -->
         <section id="earnings-view" class="view">
              <h2 class="page-title">Earnings</h2>
              <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 2rem;">
@@ -827,54 +850,56 @@
              </div>
         </section>
         
-        <!-- =========== USER MANAGEMENT (ADMIN) =========== -->
         <section id="user-management-view" class="view">
              <h2 class="page-title">User Management</h2>
              <div class="card non-interactive">
                  <input type="text" placeholder="Search users by name or email..." class="input-field" style="margin-bottom:1.5rem;">
                  <div style="overflow-x:auto;">
-                    <table>
-                        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead>
-                        <tbody id="user-management-table"></tbody>
-                    </table>
+                     <table>
+                         <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead>
+                         <tbody id="user-management-table"></tbody>
+                     </table>
                  </div>
              </div>
         </section>
 
-        <!-- =========== SERVICE MANAGEMENT (ADMIN) =========== -->
         <section id="service-management-view" class="view">
              <h2 class="page-title">Service Management</h2>
              <div class="card non-interactive">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-                    <p style="color:var(--text-light);">Add, edit, or remove services offered on the platform.</p>
-                    <button class="btn btn-primary">Add New Service</button>
-                </div>
+                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                     <p style="color:var(--text-light);">Add, edit, or remove services offered on the platform.</p>
+                     <button class="btn btn-primary">Add New Service</button>
+                 </div>
                  <div style="overflow-x:auto;">
-                    <table>
-                        <thead><tr><th>Service Name</th><th>Price</th><th>Category</th><th>Actions</th></tr></thead>
-                        <tbody id="service-management-table"></tbody>
-                    </table>
+                     <table>
+                         <thead><tr><th>Service Name</th><th>Price</th><th>Category</th><th>Actions</th></tr></thead>
+                         <tbody id="service-management-table"></tbody>
+                     </table>
                  </div>
              </div>
         </section>
 
     </main>
 
-    <!-- =========== JAVASCRIPT LOGIC =========== -->
     <script>
         // --- MOCK DATA ---
         const mockData = {
             doctors: [{ id: 1, name: "Dr. Anjali Sharma", specialization: "Panchakarma Specialist", location: "Chandigarh, India", rating: 4.8, img: 'https://placehold.co/100x100/a2c4a2/FFFFFF?text=AS' },{ id: 2, name: "Dr. Vikram Singh", specialization: "Kayachikitsa (Internal Medicine)", location: "Delhi, India", rating: 4.9, img: 'https://placehold.co/100x100/c4a2a2/FFFFFF?text=VS' },{ id: 3, name: "Dr. Priya Desai", specialization: "Ayurvedic Nutrition", location: "Mumbai, India", rating: 4.7, img: 'https://placehold.co/100x100/a2a2c4/FFFFFF?text=PD' },],
             customerAppointments: [
-                { id: 101, doctor: "Dr. Anjali Sharma", doctorId: 1, service: "Panchakarma Consultation", date: "2025-09-15T11:00:00", type: "Video", price: 1500, status: 'Confirmed' },
+                { id: 101, doctor: "Dr. Anjali Sharma", doctorId: 1, service: "Panchakarma Consultation", date: "2025-09-18T11:00:00", type: "Video", price: 1500, status: 'Confirmed' },
                 { id: 102, doctor: "Dr. Priya Desai", doctorId: 3, service: "Diet Plan Follow-up", date: "2025-09-22T14:30:00", type: "In-Clinic", price: 1000, status: 'Confirmed' }
             ],
             doctorAppointments: [
-                { id: 201, patient: "Rohan Verma", service: "Initial Consultation", date: "2025-09-13T11:30:00", type: "Video", price: 1500, status: 'Confirmed' },
-                { id: 202, patient: "Sunita Kaur", service: "Abhyanga Therapy", date: "2025-09-13T14:00:00", type: "In-Clinic", price: 2500, status: 'Confirmed' }
+                { id: 201, patient: "Rohan Verma", service: "Initial Consultation", date: "2025-09-16T11:30:00", type: "Video", price: 1500, status: 'Confirmed' },
+                { id: 202, patient: "Sunita Kaur", service: "Abhyanga Therapy", date: "2025-09-16T14:00:00", type: "In-Clinic", price: 2500, status: 'Confirmed' }
             ],
             verificationQueue: [{ name: "Dr. Sameer Gupta", license: "Lic #84620", submitted: "2 days ago" },{ name: "Dr. Meera Iyer", license: "Lic #91234", submitted: "5 days ago" },],
-            patients: [{name: "Rohan Verma", lastVisit: "Sep 10, 2025", dosha: "Pitta-Vata"}, {name: "Sunita Kaur", lastVisit: "Sep 12, 2025", dosha: "Kapha"}],
+            patients: [
+                { name: "Rohan Verma", age: 34, gender: "Male", previousConsultations: 3, ongoingTherapy: "Pitta Diet Plan" }, 
+                { name: "Sunita Kaur", age: 45, gender: "Female", previousConsultations: 1, ongoingTherapy: "Abhyanga Massage" },
+                { name: "Ankit Patel", age: 29, gender: "Male", previousConsultations: 5, ongoingTherapy: "Herbal Supplements" },
+                { name: "Priya Singh", age: 38, gender: "Female", previousConsultations: 2, ongoingTherapy: "Yoga & Meditation" },
+            ],
             users: [
                 { name: 'Aisha', email: 'customer@ayur.com', role: 'Customer', joined: '2025-08-20', status: 'Active', password: 'password' },
                 { name: 'Dr. Vikram Singh', email: 'doctor@ayur.com', role: 'Doctor', joined: '2025-07-15', status: 'Active', password: 'password' },
@@ -885,68 +910,41 @@
                 { name: 'Abhyanga Massage', price: 2500, category: 'Therapy' },
                 { name: 'Shirodhara', price: 3000, category: 'Therapy' },
             ],
+            educationalFeed: [
+                { id: 1, title: 'Understanding Your Dosha: A Beginner\'s Guide', author: 'AyurSutra Team', snippet: 'Learn the fundamentals of Vata, Pitta, and Kapha and how they influence your health and personality.', image: 'https://placehold.co/240x240/a2c4a2/3a3a3a?text=Dosha' },
+                { id: 2, title: 'The Power of "Agni": Nurturing Your Digestive Fire', author: 'Dr. Anjali Sharma', snippet: 'Discover why a strong digestive fire (Agni) is the cornerstone of good health in Ayurveda and tips to improve it.', image: 'https://placehold.co/240x240/daa520/3a3a3a?text=Agni' },
+            ],
+            messages: [
+                { id: 1, from: 'Dr. Anjali Sharma', subject: 'Follow-up on your treatment plan', snippet: 'Dear Aisha, just checking in to see how you are feeling with the new dietary changes...', read: false },
+                { id: 2, from: 'AyurSutra Support', subject: 'Your upcoming appointment reminder', snippet: 'This is a friendly reminder of your appointment with Dr. Priya Desai on Sep 22, 2025.', read: true },
+            ],
+            // NEW: Quiz Questions
+            quizQuestions: [
+                { question: "How would you describe your physical build?", options: [{text: "Light, thin, and slender", dosha: "Vata"}, {text: "Medium, muscular, and athletic", dosha: "Pitta"}, {text: "Large, heavy, and well-built", dosha: "Kapha"}] },
+                { question: "What is your skin typically like?", options: [{text: "Dry, thin, and cool to the touch", dosha: "Vata"}, {text: "Warm, oily, and prone to rashes or acne", dosha: "Pitta"}, {text: "Thick, smooth, oily, and cool", dosha: "Kapha"}] },
+                { question: "How is your appetite and digestion?", options: [{text: "Irregular, I often forget to eat", dosha: "Vata"}, {text: "Strong, I get 'hangry' if I miss a meal", dosha: "Pitta"}, {text: "Steady and moderate, I enjoy food", dosha: "Kapha"}] },
+                { question: "Under stress, you tend to become:", options: [{text: "Anxious, worried, and overwhelmed", dosha: "Vata"}, {text: "Irritable, short-tempered, and aggressive", dosha: "Pitta"}, {text: "Withdrawn, slow to react, and complacent", dosha: "Kapha"}] },
+                { question: "Which climate do you prefer?", options: [{text: "Warm and humid climates", dosha: "Vata"}, {text: "Cool and dry climates", dosha: "Pitta"}, {text: "Warm and dry climates", dosha: "Kapha"}] },
+                { question: "How is your sleep pattern?", options: [{text: "Light, interrupted, and prone to insomnia", dosha: "Vata"}, {text: "Moderate but can be disturbed by feeling hot", dosha: "Pitta"}, {text: "Deep, long, and I can sometimes oversleep", dosha: "Kapha"}] },
+                { question: "How would you describe your personality?", options: [{text: "Creative, energetic, and talkative", dosha: "Vata"}, {text: "Intelligent, focused, and a natural leader", dosha: "Pitta"}, {text: "Calm, loving, and supportive", dosha: "Kapha"}] },
+            ],
+            // NEW: Notifications
             notifications: {
                 Customer: [
-                    { icon: 'calendar-check', text: 'Your appointment with Dr. Sharma is confirmed for Sep 15.', time: '1 day ago', read: false },
-                    { icon: 'chat-dots', text: 'You have a new message from Dr. Desai.', time: '3 days ago', read: false },
-                    { icon: 'leaf', text: 'New article available: "5 Herbs for a Healthy Monsoon Season".', time: '5 days ago', read: true },
+                    { id: 1, icon: 'chat-circle-dots', message: "Dr. Sharma replied to your message about Trikatu.", time: "2 hours ago", read: false },
+                    { id: 2, icon: 'calendar', message: "Your appointment with Dr. Desai is confirmed for Sep 22.", time: "1 day ago", read: true },
+                    { id: 3, icon: 'first-aid-kit', message: "Your treatment plan has been updated.", time: "3 days ago", read: true }
                 ],
                 Doctor: [
-                     { icon: 'user-plus', text: 'New patient booking from Rohan Verma.', time: '2 hours ago', read: false },
-                     { icon: 'star', text: 'You received 5-star feedback from Aisha.', time: '1 day ago', read: true },
-                     { icon: 'currency-inr', text: 'A payout of ₹44,000 has been initiated.', time: '2 days ago', read: true },
+                    { id: 1, icon: 'calendar-plus', message: "A new patient, Ankit P., booked an appointment for tomorrow.", time: "5 hours ago", read: false },
+                    { id: 2, icon: 'wallet', message: "Your weekly payout of ₹25,000 has been processed.", time: "2 days ago", read: true },
+                    { id: 3, icon: 'star', message: "You received 5-star feedback from Sunita K.", time: "4 days ago", read: true },
                 ]
-            },
-            doshaQuizQuestions: [
-                {
-                    question: "My physical build is typically:",
-                    options: [
-                        { text: "Light, thin, and slender.", value: "Vata" },
-                        { text: "Medium, muscular, and athletic.", value: "Pitta" },
-                        { text: "Large, heavy, and well-built.", value: "Kapha" }
-                    ]
-                },
-                {
-                    question: "Under stress, I tend to be:",
-                    options: [
-                        { text: "Anxious, worried, and overwhelmed.", value: "Vata" },
-                        { text: "Irritable, short-tempered, and aggressive.", value: "Pitta" },
-                        { text: "Withdrawn, slow to react, and complacent.", value: "Kapha" }
-                    ]
-                },
-                {
-                    question: "My appetite is generally:",
-                    options: [
-                        { text: "Irregular, I often forget to eat.", value: "Vata" },
-                        { text: "Strong, I get 'hangry' if I miss a meal.", value: "Pitta" },
-                        { text: "Steady and moderate, I enjoy food.", value: "Kapha" }
-                    ]
-                },
-                 {
-                    question: "How is your skin usually?",
-                    options: [
-                        { text: "Dry, thin, and cool to the touch.", value: "Vata" },
-                        { text: "Oily, sensitive, and warm.", value: "Pitta" },
-                        { text: "Thick, cool, and smooth.", value: "Kapha" }
-                    ]
-                },
-                {
-                    question: "My energy levels are typically:",
-                    options: [
-                        { text: "Variable, coming in bursts.", value: "Vata" },
-                        { text: "High and focused, very driven.", value: "Pitta" },
-                        { text: "Sustained and steady, very calm.", value: "Kapha" }
-                    ]
-                },
-            ]
+            }
         };
 
         // --- APPLICATION STATE ---
         let appState = { isLoggedIn: false, userRole: null, userName: '' };
-        let quizState = {
-            currentQuestionIndex: 0,
-            scores: { Vata: 0, Pitta: 0, Kapha: 0 }
-        };
 
         // --- DOM ELEMENTS ---
         const views = document.querySelectorAll('.view');
@@ -956,9 +954,6 @@
         const userDropdown = document.getElementById('user-dropdown');
         const loginForm = document.getElementById('login-form');
         const registerForm = document.getElementById('register-form');
-        const notificationPanel = document.getElementById('notification-panel');
-        const notificationBadge = document.getElementById('notification-badge');
-
         const aiWellnessForm = document.getElementById('ai-wellness-form');
         const aiSummarizeButton = document.getElementById('ai-summarize-button');
         const forgotPasswordForm = document.getElementById('forgot-password-form');
@@ -966,13 +961,16 @@
         const profileForm = document.getElementById('profile-form');
         const journalForm = document.getElementById('journal-form');
         const mainNavLinks = document.getElementById('main-nav-links');
+        const contactForm = document.getElementById('contact-form');
+        const scheduleForm = document.getElementById('schedule-form');
+        const notificationDropdown = document.getElementById('notification-dropdown');
 
         // --- ROUTING / VIEW MANAGEMENT ---
         function showView(viewId) {
             views.forEach(view => { view.style.display = 'none'; });
             document.getElementById(viewId).style.display = 'block';
             if(userDropdown) userDropdown.style.display = 'none';
-            if(notificationPanel) notificationPanel.style.display = 'none';
+            if(notificationDropdown) notificationDropdown.style.display = 'none';
             window.scrollTo(0, 0);
         }
         
@@ -1013,6 +1011,8 @@
             renderPatientList();
             renderUserManagementTable();
             renderServiceManagementTable();
+            renderEducationalFeed();
+            renderMessages();
         }
         function renderDoctorList() {
             const container = document.getElementById('doctor-list-container');
@@ -1027,17 +1027,12 @@
                 </div>`).join('');
         }
         function renderAppointments() {
-            const currentDate = new Date('2025-09-13T11:58:00');
+            const currentDate = new Date('2025-09-16T14:30:00'); // Set current date for demo
             const getCountdown = (date) => {
-                const appointmentDate = new Date(date);
-                appointmentDate.setHours(0,0,0,0);
-                const today = new Date(currentDate);
-                today.setHours(0,0,0,0);
-
-                const diffTime = appointmentDate - today;
+                const diffTime = new Date(date) - currentDate;
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                
-                if (diffDays === 0) return { text: "Today", value: new Date(date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
+                if (diffTime > 0 && new Date(date).getDate() === currentDate.getDate()) return { text: "Today", value: new Date(date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
+                if (diffDays <= 0) return { text: "Today", value: new Date(date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
                 if (diffDays === 1) return { text: "Tomorrow", value: ""};
                 return { text: `In ${diffDays} days`, value: "" };
             }
@@ -1045,6 +1040,7 @@
             const custContainer = document.getElementById('customer-appointments');
             custContainer.innerHTML = mockData.customerAppointments.map(apt => {
                 const countdown = getCountdown(apt.date);
+                const doctor = mockData.doctors.find(d => d.id === apt.doctorId);
                 return `
                 <div class="appointment-card">
                     <div class="appointment-card-time">
@@ -1064,8 +1060,8 @@
             }).join('') || '<p style="color: var(--text-light);">No upcoming appointments.</p>';
             
             const docContainer = document.getElementById('doctor-appointments');
-            docContainer.innerHTML = mockData.doctorAppointments.map(apt => {
-                 const countdown = getCountdown(apt.date);
+            docContainer.innerHTML = mockData.doctorAppointments.filter(apt => new Date(apt.date).getDate() === currentDate.getDate()).map(apt => {
+                const countdown = getCountdown(apt.date);
                 return `
                 <div class="appointment-card">
                     <div class="appointment-card-time">
@@ -1088,9 +1084,18 @@
             const queueContainer = document.getElementById('admin-verification-queue');
             queueContainer.innerHTML = mockData.verificationQueue.map(req => `<div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid var(--border-color);"><div><p style="font-weight: 600;">${req.name} <span style="font-size: 0.875rem; color: var(--text-light); font-weight: 400;">(${req.license})</span></p><p style="font-size: 0.75rem; color: #6b7280;">Submitted ${req.submitted}</p></div><div style="display: flex; gap: 0.5rem;"><button class="btn" style="font-size:0.75rem; padding: 0.25rem 0.75rem; background-color: #22c55e; color:white;">Approve</button><button class="btn" style="font-size:0.75rem; padding: 0.25rem 0.75rem; background-color: #ef4444; color:white;">Reject</button></div></div>`).join('');
         }
+        
         function renderPatientList() {
             const tableBody = document.querySelector('#patient-table tbody');
-            tableBody.innerHTML = mockData.patients.map(p => `<tr><td>${p.name}</td><td>${p.lastVisit}</td><td>${p.dosha}</td><td><button class="btn btn-secondary" style="font-size:0.8rem; padding:0.25rem 0.5rem;">View</button></td></tr>`).join('');
+            tableBody.innerHTML = mockData.patients.map(p => `
+            <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 0.75rem 0.5rem;">${p.name}</td>
+                <td style="padding: 0.75rem 0.5rem;">${p.age}</td>
+                <td style="padding: 0.75rem 0.5rem;">${p.gender}</td>
+                <td style="padding: 0.75rem 0.5rem;">${p.previousConsultations}</td>
+                <td style="padding: 0.75rem 0.5rem;">${p.ongoingTherapy}</td>
+                <td style="padding: 0.75rem 0.5rem;"><button class="btn btn-secondary" style="font-size:0.8rem; padding:0.25rem 0.5rem;">View</button></td>
+            </tr>`).join('');
         }
         function renderUserManagementTable() {
             const tableBody = document.getElementById('user-management-table');
@@ -1099,6 +1104,33 @@
         function renderServiceManagementTable() {
              const tableBody = document.getElementById('service-management-table');
             tableBody.innerHTML = mockData.services.map(s => `<tr><td>${s.name}</td><td>₹${s.price.toFixed(2)}</td><td>${s.category}</td><td><button class="btn btn-secondary" style="font-size:0.8rem; padding:0.25rem 0.5rem;">Edit</button></td></tr>`).join('');
+        }
+        function renderEducationalFeed() {
+            const container = document.getElementById('educational-feed-container');
+            container.innerHTML = mockData.educationalFeed.map(article => `
+                <div class="card article-card">
+                    <img src="${article.image}" alt="">
+                    <div class="article-card-content">
+                        <h4>${article.title}</h4>
+                        <p style="margin-bottom: 0.5rem;">By ${article.author}</p>
+                        <p>${article.snippet}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+        function renderMessages() {
+            const container = document.getElementById('messages-container');
+            container.innerHTML = mockData.messages.map(msg => `
+                <div class="message-thread ${msg.read ? '' : 'unread'}">
+                    ${msg.read ? '<div style="width: 8px;"></div>' : '<div class="message-indicator"></div>'}
+                    <i class="ph-fill ph-user-circle message-icon"></i>
+                    <div style="flex-grow: 1;">
+                        <p class="message-subject">${msg.subject}</p>
+                        <p class="message-from">From: ${msg.from}</p>
+                    </div>
+                    <i class="ph ph-caret-right" style="font-size: 1.2rem; color: var(--text-light);"></i>
+                </div>
+            `).join('');
         }
 
         // --- APPOINTMENT DETAIL LOGIC ---
@@ -1118,7 +1150,7 @@
             const headerInfo = document.getElementById('ad-header-info');
             const actionButtons = document.getElementById('ad-action-buttons');
             const appointmentDate = new Date(appointment.date);
-            const currentDate = new Date('2025-09-13T11:58:00');
+            const currentDate = new Date('2025-09-16T14:30:00');
             const diffTime = appointmentDate - currentDate;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
@@ -1131,6 +1163,7 @@
             document.getElementById('ad-total-price').textContent = `₹${appointment.price.toFixed(2)}`;
             document.getElementById('ad-countdown-days').textContent = diffDays >= 0 ? diffDays : 'Past';
             document.getElementById('ad-countdown-label').textContent = diffDays === 1 ? 'Day to go' : 'Days to go';
+
 
             if (role === 'Customer') {
                 const doctor = mockData.doctors.find(d => d.id === appointment.doctorId);
@@ -1156,11 +1189,15 @@
                     <button class="btn btn-secondary">View Patient History</button>
                 `;
             }
+
             showView('appointment-detail-view');
         }
         
         // --- EVENT HANDLERS & AUTH LOGIC ---
-        function toggleDropdown() { userDropdown.style.display = userDropdown.style.display === 'block' ? 'none' : 'block'; }
+        function toggleDropdown() { 
+            notificationDropdown.style.display = 'none';
+            userDropdown.style.display = userDropdown.style.display === 'block' ? 'none' : 'block'; 
+        }
         function switchAuthTab(tab) {
             const loginTab = document.getElementById('login-tab'), regTab = document.getElementById('register-tab');
             loginTab.classList.toggle('tab-active', tab === 'login');
@@ -1186,7 +1223,6 @@
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             const user = mockData.users.find(u => u.email === email && u.password === password);
-
             if (user) {
                 appState.isLoggedIn = true;
                 appState.userRole = user.role;
@@ -1197,110 +1233,153 @@
                 alert('Invalid credentials. Please try again.');
             }
         });
+        
+        contactForm.addEventListener('submit', (e) => { e.preventDefault(); alert('Thank you for your message! We will get back to you shortly.'); contactForm.reset(); });
+        scheduleForm.addEventListener('submit', (e) => { e.preventDefault(); alert('Availability has been updated successfully!'); });
 
         registerForm.addEventListener('submit', (e) => { e.preventDefault(); alert('Registration successful! (This is a demo)'); switchAuthTab('login'); });
         forgotPasswordForm.addEventListener('submit', (e) => { e.preventDefault(); alert('Password reset link sent! (This is a demo)'); showView('auth-view'); });
         profileForm.addEventListener('submit', (e) => { e.preventDefault(); alert('Profile updated!'); });
         journalForm.addEventListener('submit', (e) => { e.preventDefault(); alert('Journal entry saved!'); journalForm.reset(); });
-        function logout() { appState.isLoggedIn = false; appState.userRole = null; appState.userName = ''; updateUI(); showView('home-view'); }
+        function logout() { 
+            appState.isLoggedIn = false; 
+            appState.userRole = null; 
+            appState.userName = ''; 
+            updateUI(); 
+            document.getElementById('notification-dropdown').innerHTML = ''; // Clear notifications
+            document.getElementById('notification-dot').classList.remove('active');
+            showView('home-view'); 
+        }
         
-        // --- NOTIFICATION LOGIC ---
-        function toggleNotificationPanel() {
-            notificationPanel.style.display = notificationPanel.style.display === 'block' ? 'none' : 'block';
-            if (notificationPanel.style.display === 'block') {
-                // Mark notifications as read
-                const notifications = mockData.notifications[appState.userRole] || [];
-                notifications.forEach(n => n.read = true);
-                renderNotifications();
-            }
-        }
-        function renderNotifications() {
-            const notifications = mockData.notifications[appState.userRole] || [];
-            const unreadCount = notifications.filter(n => !n.read).length;
-            
-            notificationBadge.style.display = unreadCount > 0 ? 'block' : 'none';
-
-            if (notifications.length === 0) {
-                notificationPanel.innerHTML = '<div style="padding: 1.5rem; text-align: center; color: var(--text-light);">No new notifications.</div>';
-                return;
-            }
-            notificationPanel.innerHTML = notifications.map(n => `
-                <div class="notification-item">
-                    <i class="ph-fill ph-${n.icon}"></i>
-                    <div>
-                        <p>${n.text}</p>
-                        <p class="time">${n.time}</p>
-                    </div>
-                </div>
-            `).join('');
+        // --- NEW: Interactive Quiz Logic ---
+        let currentQuestionIndex = 0;
+        let userAnswers = {};
+        
+        function startQuiz() {
+            showView('dosha-quiz-view');
+            currentQuestionIndex = 0;
+            userAnswers = { Vata: 0, Pitta: 0, Kapha: 0 };
+            document.getElementById('quiz-result').style.display = 'none';
+            document.getElementById('quiz-container').style.display = 'block';
+            displayQuestion();
         }
 
-        // --- DOSHA QUIZ LOGIC ---
-        function startDoshaQuiz() {
-            quizState = { currentQuestionIndex: 0, scores: { Vata: 0, Pitta: 0, Kapha: 0 } };
-            document.getElementById('quiz-start-screen').style.display = 'none';
-            document.getElementById('quiz-result-screen').style.display = 'none';
-            document.getElementById('quiz-question-screen').style.display = 'block';
-            renderDoshaQuestion();
-        }
-
-        function renderDoshaQuestion() {
-            const container = document.getElementById('quiz-question-container');
+        function displayQuestion() {
+            const questionContainer = document.getElementById('quiz-question-container');
             const progressBar = document.getElementById('quiz-progress-bar');
-            const questionData = mockData.doshaQuizQuestions[quizState.currentQuestionIndex];
-
-            progressBar.style.width = `${((quizState.currentQuestionIndex) / mockData.doshaQuizQuestions.length) * 100}%`;
-
-            container.classList.add('question-exit');
+            const questionData = mockData.quizQuestions[currentQuestionIndex];
+            
+            // Update progress bar
+            progressBar.style.width = `${((currentQuestionIndex) / mockData.quizQuestions.length) * 100}%`;
+            
+            // Fade out old question
+            questionContainer.style.opacity = 0;
 
             setTimeout(() => {
-                container.innerHTML = `
-                    <p style="font-weight: 600; font-size: 1.25rem; text-align: center; margin-bottom: 1.5rem;">${questionData.question}</p>
+                let optionsHTML = questionData.options.map((option, index) => `
                     <div>
-                        ${questionData.options.map(opt => `<button class="quiz-option" onclick="handleDoshaAnswer('${opt.value}')">${opt.text}</button>`).join('')}
-                    </div>`;
-                container.classList.remove('question-exit');
-            }, 300);
+                        <input type="radio" name="quiz_option" id="q${currentQuestionIndex}_o${index}" value="${option.dosha}">
+                        <label for="q${currentQuestionIndex}_o${index}">${option.text}</label>
+                    </div>
+                `).join('');
+
+                questionContainer.innerHTML = `
+                    <p class="quiz-question-text">${currentQuestionIndex + 1}. ${questionData.question}</p>
+                    <div class="quiz-options">${optionsHTML}</div>
+                `;
+                
+                // Fade in new question
+                questionContainer.style.opacity = 1;
+
+                // Add event listeners to new options
+                document.querySelectorAll('input[name="quiz_option"]').forEach(radio => {
+                    radio.addEventListener('change', (e) => handleAnswerSelection(e.target.value));
+                });
+            }, 300); // Wait for fade out to complete
         }
 
-        function handleDoshaAnswer(doshaValue) {
-            quizState.scores[doshaValue]++;
-            quizState.currentQuestionIndex++;
-
-            if (quizState.currentQuestionIndex < mockData.doshaQuizQuestions.length) {
-                renderDoshaQuestion();
+        function handleAnswerSelection(selectedDosha) {
+            userAnswers[selectedDosha]++;
+            currentQuestionIndex++;
+            if (currentQuestionIndex < mockData.quizQuestions.length) {
+                displayQuestion();
             } else {
                 document.getElementById('quiz-progress-bar').style.width = '100%';
-                showDoshaResult();
+                setTimeout(showQuizResult, 500);
             }
         }
-        
-        function showDoshaResult() {
-            let dominantDosha = "Balanced";
-            let maxScore = 0;
-            for(const dosha in quizState.scores) {
-                if(quizState.scores[dosha] > maxScore) {
-                    maxScore = quizState.scores[dosha];
-                    dominantDosha = dosha;
+
+        function showQuizResult() {
+            let resultDosha = 'Balanced';
+            let maxCount = 0;
+            // Find the dominant dosha
+            for (const dosha in userAnswers) {
+                if (userAnswers[dosha] > maxCount) {
+                    maxCount = userAnswers[dosha];
+                    resultDosha = dosha;
                 }
             }
             
-            const resultScreen = document.getElementById('quiz-result-screen');
-            resultScreen.innerHTML = `
-                <div class="card non-interactive dosha-result-card" style="text-align: center;">
-                    <p style="font-size: 1rem; color: var(--text-light);">Your dominant dosha is</p>
-                    <h3>${dominantDosha}</h3>
-                    <p style="max-width: 30rem; margin: 1rem auto;">This suggests your constitution is primarily influenced by the elements of ${dominantDosha === 'Vata' ? 'Space and Air' : dominantDosha === 'Pitta' ? 'Fire and Water' : 'Earth and Water'}. Understanding your Dosha is the first step towards personalized wellness.</p>
-                    <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
-                        <button class="btn btn-secondary" onclick="startDoshaQuiz()">Retake Quiz</button>
-                        <button class="btn btn-primary">Share with Doctor</button>
-                    </div>
+            const resultInfo = {
+                Vata: { icon: 'wind', elements: 'Space and Air', description: 'This suggests you are creative, energetic, and quick-thinking. To maintain balance, focus on grounding routines, warm foods, and staying hydrated.' },
+                Pitta: { icon: 'fire', elements: 'Fire and Water', description: 'This indicates you are intelligent, focused, and a natural leader. To stay balanced, incorporate cooling foods, avoid excess heat, and practice patience.' },
+                Kapha: { icon: 'mountains', elements: 'Earth and Water', description: 'This means you are likely calm, loving, and supportive. To find balance, stay active with regular exercise, eat light, warm foods, and seek new experiences.' }
+            };
+
+            const resultContainer = document.getElementById('quiz-result');
+            resultContainer.innerHTML = `
+                <div id="quiz-result-card">
+                    <i class="ph-bold ph-${resultInfo[resultDosha].icon}"></i>
+                    <h3 style="font-size: 1.75rem; font-weight: 700; color: var(--secondary-color); margin-bottom: 0.5rem;">Your Primary Dosha is: ${resultDosha}</h3>
+                    <p style="font-size: 1.1rem; color: var(--text-dark);">Your constitution is primarily influenced by the elements of <strong>${resultInfo[resultDosha].elements}</strong>.</p>
+                    <p style="color: var(--text-light); max-width: 35rem; margin: 1rem auto 2rem;">${resultInfo[resultDosha].description}</p>
+                    <button class="btn btn-primary" onclick="startQuiz()">Retake Quiz</button>
                 </div>
             `;
-            document.getElementById('quiz-question-screen').style.display = 'none';
-            resultScreen.style.display = 'block';
+            document.getElementById('quiz-container').style.display = 'none';
+            resultContainer.style.display = 'block';
         }
 
+        // --- NEW: Notification Logic ---
+        function toggleNotifications() {
+            userDropdown.style.display = 'none';
+            notificationDropdown.style.display = notificationDropdown.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function renderNotifications() {
+            const container = document.getElementById('notification-dropdown');
+            const dot = document.getElementById('notification-dot');
+            const userRole = appState.userRole;
+            
+            if (!userRole || !mockData.notifications[userRole]) {
+                container.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--text-light);">No notifications.</div>';
+                return;
+            }
+
+            const notifications = mockData.notifications[userRole];
+            let hasUnread = false;
+
+            let notificationsHTML = notifications.map(n => {
+                if (!n.read) hasUnread = true;
+                return `
+                <div class="notification-item ${n.read ? '' : 'unread'}">
+                    <i class="ph-fill ph-${n.icon}"></i>
+                    <div>
+                        <p style="margin: 0;">${n.message}</p>
+                        <p class="notification-time" style="margin: 0.25rem 0 0;">${n.time}</p>
+                    </div>
+                </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = `<div class="notification-header">Notifications</div>${notificationsHTML}`;
+            
+            if(hasUnread) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        }
 
         // --- THEME LOGIC ---
         function applyTheme(isDark) {
@@ -1378,22 +1457,7 @@
             
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('journal-date').value = today;
-
-            // Close dropdowns if clicked outside
-            window.onclick = function(event) {
-                if (!event.target.matches('.user-menu-button i')) {
-                    if (userDropdown.style.display === 'block') {
-                        userDropdown.style.display = 'none';
-                    }
-                }
-                 if (!event.target.closest('.notification-bell') && !event.target.closest('.notification-panel')) {
-                    if (notificationPanel.style.display === 'block') {
-                        notificationPanel.style.display = 'none';
-                    }
-                }
-            }
         });
     </script>
 </body>
 </html>
-
